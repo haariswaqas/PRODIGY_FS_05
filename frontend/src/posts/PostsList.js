@@ -248,78 +248,65 @@ const PostsList = () => {
                             </>
                         )}
 
-                        <div className="flex justify-between items-center mt-4 space-x-4">
-                            {/* Likes and Dislikes */}
-                            <div className="flex items-center space-x-4">
-    
-    {/* Likes Section */}
-    <motion.div
-      className="flex flex-col items-center"
-      whileHover={{ scale: post.dislikes.includes(authState.user?.id) ? 1 : 1.05 }} // Scale only when dislikes not active
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="text-sm text-gray-500 mb-1">
-        {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
-      </div>
-      <button
-        onClick={() => handleLike(post.id)}
-        disabled={post.dislikes.includes(authState.user?.id)} // Disable if post is disliked
-        className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${
-          post.likes.includes(authState.user?.id)
-            ? 'bg-blue-500 text-white'
-            : 'bg-white border border-gray-200 hover:bg-gray-100'
-        } hover:text-blue-600`}
-      >
-        <FontAwesomeIcon
-          icon={faThumbsUp}
-          className={`mr-2 ${
-            post.likes.includes(authState.user?.id) ? 'text-white' : 'text-blue-500'
-          }`}
-        />
-        {post.likes.includes(authState.user?.id) ? 'Liked' : 'Like'}
-      </button>
-    </motion.div>
+<div className="flex justify-between mt-2">
+                <div className="flex space-x-2">
+                  {/* Likes Section */}
+                  <motion.div
+                    className="flex flex-col items-center"
+                    whileHover={{ scale: post.dislikes.includes(authState.user?.id) ? 1 : 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="text-sm text-gray-500 mb-1">
+                      {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
+                    </div>
+                    <button
+                      onClick={() => handleLike(post.id)}
+                      disabled={post.dislikes.includes(authState.user?.id)}
+                      className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.likes.includes(authState.user?.id) ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-blue-600`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faThumbsUp}
+                        className={`mr-2 ${post.likes.includes(authState.user?.id) ? 'text-white' : 'text-blue-500'}`}
+                      />
+                      {post.likes.includes(authState.user?.id) ? 'Liked' : 'Like'}
+                    </button>
+                  </motion.div>
 
-    {/* Dislikes Section */}
-    <motion.div
-      className="flex flex-col items-center"
-      whileHover={{ scale: post.likes.includes(authState.user?.id) ? 1 : 1.05 }} // Scale only when likes not active
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="text-sm text-gray-500 mb-1">
-        {post.dislikes.length} {post.dislikes.length === 1 ? 'dislike' : 'dislikes'}
-      </div>
-      <button
-        onClick={() => handleDislike(post.id)}
-        disabled={post.likes.includes(authState.user?.id)} // Disable if post is liked
-        className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${
-          post.dislikes.includes(authState.user?.id)
-            ? 'bg-red-500 text-white'
-            : 'bg-white border border-gray-200 hover:bg-gray-100'
-        } hover:text-red-600`}
-      >
-        <FontAwesomeIcon
-          icon={faThumbsDown}
-          className={`mr-2 ${
-            post.dislikes.includes(authState.user?.id) ? 'text-white' : 'text-red-500'
-          }`}
-        />
-        {post.dislikes.includes(authState.user?.id) ? 'Disliked' : 'Dislike'}
-      </button>
-    </motion.div>
-  </div>
+                  {/* Dislikes Section */}
+                  <motion.div
+                    className="flex flex-col items-center"
+                    whileHover={{ scale: post.likes.includes(authState.user?.id) ? 1 : 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="text-sm text-gray-500 mb-1">
+                      {post.dislikes.length} {post.dislikes.length === 1 ? 'dislike' : 'dislikes'}
+                    </div>
+                    <button
+                      onClick={() => handleDislike(post.id)}
+                      disabled={post.likes.includes(authState.user?.id)}
+                      className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.dislikes.includes(authState.user?.id) ? 'bg-red-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-red-600`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faThumbsDown}
+                        className={`mr-2 ${post.dislikes.includes(authState.user?.id) ? 'text-white' : 'text-red-500'}`}
+                      />
+                      {post.dislikes.includes(authState.user?.id) ? 'Disliked' : 'Dislike'}
+                    </button>
+                  </motion.div>
+                </div>
                             {/* Comments Section */}
-                            <div className="flex items-center space-x-1">
-                                <span className="text-gray-500">{commentsCount[post.id] || 0} Comments</span>
-                                <button 
-                                    onClick={() => handleToggleCommentForm(post.id)} 
-                                    className="text-blue-500 hover:underline"
-                                >
-                                    <FontAwesomeIcon icon={faComment} />
-                                </button>
-                            </div>
+                            <div className="mt-6">
+                 
+                 <button
+                   onClick={() => handleToggleCommentForm(post.id)}
+                   className="flex items-center px-4 py-2 rounded-md text-sm transition duration-300 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-600"
+                 >
+                   <FontAwesomeIcon icon={faComment} className="mr-2 text-blue-500" />
+                   Comment  <span className="text-sm text-gray-500 mb-0 ml-2">  ({commentsCount[post.id] || 0})   </span>
+                 </button>
+               </div>
                         </div>
 
                         {/* Comment Form Toggle */}

@@ -225,213 +225,189 @@ const fetchComments = async (postId) => {
 };
 
 return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="max-w-4xl mx-auto p-4"
-    >
-      <h2 className="text-3xl font-bold text-center mb-6">Profile</h2>
-      {profile ? (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="text-center">
-            {profile.profile_picture ? (
-              <img
-                src={profile.profile_picture}
-                alt="Profile"
-                className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-200"
-              />
+  <motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  className="max-w-4xl mx-auto p-4"
+>
+  <h2 className="text-3xl font-bold text-center mb-6">Profile</h2>
+  {profile ? (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="text-center">
+        {profile.profile_picture ? (
+          <img
+            src={profile.profile_picture}
+            alt="Profile"
+            className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-200"
+          />
+        ) : (
+          <FaUserCircle size={128} color="#9CA3AF" className="mx-auto mb-4" />
+        )}
+        <h3 className="text-xl font-semibold">{profile.first_name} {profile.last_name}</h3>
+        <p className="text-gray-600">@{profile.username}</p>
+        <div className="flex justify-center space-x-4 mt-2">
+          <div className="flex items-center text-sm">
+            <span className="font-bold mr-1">{followersCount}</span> Followers
+          </div>
+          <div className="flex items-center text-sm">
+            <span className="font-bold mr-1">{followingCount}</span> Following
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-gray-100 p-4 rounded-lg shadow-sm"
+        >
+          <h4 className="text-lg font-semibold mb-2">Bio</h4>
+          <p>{profile.bio || 'No bio available'}</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-gray-100 p-4 rounded-lg shadow-sm"
+        >
+          <h4 className="text-lg font-semibold mb-2">Details</h4>
+          <div className="space-y-2">
+            {/* Details items */}
+          </div>
+        </motion.div>
+      </div>
+
+      {profile.id !== authState.user.id && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={handleFollowUnfollow}
+            className={`px-4 py-2 rounded-md transition duration-300 ${isFollowing ? 'bg-white text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white' : 'bg-blue-500 text-white hover:bg-blue-600'} flex items-center`}
+          >
+            {isFollowing ? (
+              <>
+                <FaCheckCircle size={18} className="mr-2" />
+                Following
+              </>
             ) : (
-              <FaUserCircle size={128} color="#9CA3AF" className="mx-auto mb-4" />
+              <>
+                <FaCheckCircle size={18} className="mr-2" />
+                Follow
+              </>
             )}
-            <h3 className="text-xl font-semibold">{profile.first_name} {profile.last_name}</h3>
-            <p className="text-gray-600">@{profile.username}</p>
-            <div className="flex justify-center space-x-4 mt-2">
-              <div className="flex items-center text-sm">
-                <span className="font-bold mr-1">{followersCount}</span> Followers
-              </div>
-              <div className="flex items-center text-sm">
-                <span className="font-bold mr-1">{followingCount}</span> Following
-              </div>
-            </div>
-          </div>
+          </button>
+        </div>
+      )}
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-gray-100 p-4 rounded-lg shadow-sm"
+      {profile.id === authState.user.id && (
+        <div className="mt-4 text-center">
+          <Link to={`/edit-profile/${profile.id}/`} state={{ isEditing: true, initialData: profile }}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 flex items-center"
             >
-              <h4 className="text-lg font-semibold mb-2">Bio</h4>
-              <p>{profile.bio || 'No bio available'}</p>
-            </motion.div>
+              <FaEdit size={18} className="mr-2" />
+              Edit Profile
+            </motion.button>
+          </Link>
+        </div>
+      )}
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-gray-100 p-4 rounded-lg shadow-sm"
-            >
-              <h4 className="text-lg font-semibold mb-2">Details</h4>
-              <div className="space-y-2">
-                <div>
-                  <span className="font-bold mr-1">Location:</span> {profile.location || 'Not specified'}
-                </div>
-                <div>
-                  <span className="font-bold mr-1">Phone Number:</span> {profile.phone_number || 'Not available'}
-                </div>
-                <div>
-                  <span className="font-bold mr-1">Website:</span> {profile.website ? (
-                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {profile.website}
-                    </a>
-                  ) : 'No website available'}
-                </div>
-                <div>
-                  <span className="font-bold mr-1">Date of Birth:</span> {profile.date_of_birth || 'Not provided'}
-                </div>
-                <div>
-                  <span className="font-bold mr-1">Age:</span> {profile.age || 'Not specified'}
-                </div>
-                <div>
-                  <span className="font-bold mr-1">Gender:</span> {profile.gender || 'Not specified'}
-                </div>
-              </div>
-            </motion.div>
-          </div>
+      {/* Display user posts */}
+      <div className="mt-6">
+        <h4 className="text-lg font-semibold mb-2">Posts</h4>
+        {posts.length > 0 ? (
+          posts.map((post) => (
+            <div key={post.id} className="bg-gray-100 p-4 mb-2 rounded-lg shadow-sm">
+              <h5 className="font-bold">{post.title}</h5>
+              <p>{post.content}</p>
+              <div className="flex justify-between mt-2">
+                <div className="flex space-x-2">
+                  {/* Likes Section */}
+                  <motion.div
+                    className="flex flex-col items-center"
+                    whileHover={{ scale: post.dislikes.includes(authState.user?.id) ? 1 : 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="text-sm text-gray-500 mb-1">
+                      {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
+                    </div>
+                    <button
+                      onClick={() => handleLike(post.id)}
+                      disabled={post.dislikes.includes(authState.user?.id)}
+                      className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.likes.includes(authState.user?.id) ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-blue-600`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faThumbsUp}
+                        className={`mr-2 ${post.likes.includes(authState.user?.id) ? 'text-white' : 'text-blue-500'}`}
+                      />
+                      {post.likes.includes(authState.user?.id) ? 'Liked' : 'Like'}
+                    </button>
+                  </motion.div>
 
-          {profile.id !== authState.user.id && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={handleFollowUnfollow}
-                className={`px-4 py-2 rounded-md transition duration-300 ${isFollowing ? 'bg-white text-blue-500 border border-blue-500 hover:bg-blue-500 hover:text-white' : 'bg-blue-500 text-white hover:bg-blue-600'} flex items-center`}
-              >
-                {isFollowing ? (
-                  <>
-                    <FaCheckCircle size={18} className="mr-2" />
-                    Following
-                  </>
-                ) : (
-                  <>
-                    <FaCheckCircle size={18} className="mr-2" />
-                    Follow
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+                  {/* Dislikes Section */}
+                  <motion.div
+                    className="flex flex-col items-center"
+                    whileHover={{ scale: post.likes.includes(authState.user?.id) ? 1 : 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="text-sm text-gray-500 mb-1">
+                      {post.dislikes.length} {post.dislikes.length === 1 ? 'dislike' : 'dislikes'}
+                    </div>
+                    <button
+                      onClick={() => handleDislike(post.id)}
+                      disabled={post.likes.includes(authState.user?.id)}
+                      className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.dislikes.includes(authState.user?.id) ? 'bg-red-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-red-600`}
+                    >
+                      <FontAwesomeIcon
+                        icon={faThumbsDown}
+                        className={`mr-2 ${post.dislikes.includes(authState.user?.id) ? 'text-white' : 'text-red-500'}`}
+                      />
+                      {post.dislikes.includes(authState.user?.id) ? 'Disliked' : 'Dislike'}
+                    </button>
+                  </motion.div>
+                </div>
 
-          {profile.id === authState.user.id && (
-            <div className="mt-4 text-center">
-              <Link to={`/edit-profile/${profile.id}/`} state={{ isEditing: true, initialData: profile }}>
-                <motion.button
+                {/* Comments Section */}
+                <motion.div
+                  className="flex flex-col items-center"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 flex items-center"
+                  transition={{ duration: 0.3 }}
                 >
-                  <FaEdit size={18} className="mr-2" />
-                  Edit Profile
-                </motion.button>
-              </Link>
+                <div className="mt-6">
+                 
+                  <button
+                    onClick={() => handleToggleCommentForm(post.id)}
+                    className="flex items-center px-4 py-2 rounded-md text-sm transition duration-300 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-600"
+                  >
+                    <FontAwesomeIcon icon={faComment} className="mr-2 text-blue-500" />
+                    Comment  <span className="text-sm text-gray-500 mb-0 ml-2">  ({commentsCount[post.id] || 0})   </span>
+                  </button>
+                </div>
+                
+                </motion.div>
+              </div>
+
+              {/* Comment Form Toggle */}
+              {showCommentForm[post.id] && <Comment postId={post.id} />}
             </div>
-          )}
-          
-          {/* Display user posts */}
-          <div className="mt-6">
-            <h4 className="text-lg font-semibold mb-2">Posts</h4>
-            {posts.length > 0 ? (
-              posts.map(post => (
-                <div key={post.id} className="bg-gray-100 p-4 mb-2 rounded-lg shadow-sm">
-  <h5 className="font-bold">{post.title}</h5>
-  <p>{post.content}</p>
-  <div className="flex items-center space-x-4">
-    
-    {/* Likes Section */}
-    <motion.div
-      className="flex flex-col items-center"
-      whileHover={{ scale: post.dislikes.includes(authState.user?.id) ? 1 : 1.05 }} // Scale only when dislikes not active
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="text-sm text-gray-500 mb-1">
-        {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
+          ))
+        ) : (
+          <p>No posts available.</p>
+        )}
       </div>
-      <button
-        onClick={() => handleLike(post.id)}
-        disabled={post.dislikes.includes(authState.user?.id)} // Disable if post is disliked
-        className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${
-          post.likes.includes(authState.user?.id)
-            ? 'bg-blue-500 text-white'
-            : 'bg-white border border-gray-200 hover:bg-gray-100'
-        } hover:text-blue-600`}
-      >
-        <FontAwesomeIcon
-          icon={faThumbsUp}
-          className={`mr-2 ${
-            post.likes.includes(authState.user?.id) ? 'text-white' : 'text-blue-500'
-          }`}
-        />
-        {post.likes.includes(authState.user?.id) ? 'Liked' : 'Like'}
-      </button>
-    </motion.div>
+    </div>
+  ) : (
+    <p>Loading profile...</p>
+  )}
+</motion.div>
 
-    {/* Dislikes Section */}
-    <motion.div
-      className="flex flex-col items-center"
-      whileHover={{ scale: post.likes.includes(authState.user?.id) ? 1 : 1.05 }} // Scale only when likes not active
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="text-sm text-gray-500 mb-1">
-        {post.dislikes.length} {post.dislikes.length === 1 ? 'dislike' : 'dislikes'}
-      </div>
-      <button
-        onClick={() => handleDislike(post.id)}
-        disabled={post.likes.includes(authState.user?.id)} // Disable if post is liked
-        className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${
-          post.dislikes.includes(authState.user?.id)
-            ? 'bg-red-500 text-white'
-            : 'bg-white border border-gray-200 hover:bg-gray-100'
-        } hover:text-red-600`}
-      >
-        <FontAwesomeIcon
-          icon={faThumbsDown}
-          className={`mr-2 ${
-            post.dislikes.includes(authState.user?.id) ? 'text-white' : 'text-red-500'
-          }`}
-        />
-        {post.dislikes.includes(authState.user?.id) ? 'Disliked' : 'Dislike'}
-      </button>
-    </motion.div>
-  </div>
-    {/* Comments Section */}
-    <div className="flex items-center space-x-1">
-                                <span className="text-gray-500">{commentsCount[post.id] || 0} Comments</span>
-                                <button 
-                                    onClick={() => handleToggleCommentForm(post.id)} 
-                                    className="text-blue-500 hover:underline"
-                                >
-                                    <FontAwesomeIcon icon={faComment} />
-                                </button>
-                            </div>
-                             {/* Comment Form Toggle */}
-                        {showCommentForm[post.id] && (
-                            <Comment postId={post.id} />
-                        )}
-</div>
-
-              ))
-            ) : (
-              <p>No posts available.</p>
-            )}
-          </div>
-
-        </div>
-      ) : (
-        <p>Loading profile...</p>
-      )}
-    </motion.div>
   );
 };
 
