@@ -69,7 +69,7 @@ const PostsList = () => {
             const data = await response.json();
             setCommentsCount((prevCount) => ({
                 ...prevCount,
-                [userId.postId]: data.length,
+                [postId]: data.length,
             }));
         } catch (err) {
             setError(err.message);

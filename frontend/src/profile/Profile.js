@@ -64,7 +64,10 @@ const Profile = () => {
       const postsData = await postsResponse.json();
       // Filter posts that belong to the user
       const userPosts = postsData.filter(post => post.author.id === data.id);
-      setPosts(userPosts); // Set the filtered posts
+      setPosts(userPosts);
+      userPosts.forEach(post => {
+        fetchComments(post.id); // Fetch comments for each post
+      }); // Set the filtered posts
     } catch (error) {
       setError(error.message);
     } finally {
@@ -196,6 +199,31 @@ const handleToggleCommentForm = (postId) => {
       [postId]: !prevState[postId],
   }));
 };
+
+const fetchComments = async (postId) => {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/comments/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch comments');
+        }
+
+        const data = await response.json();
+        setCommentsCount((prevCount) => ({
+            ...prevCount,
+            [postId]: data.length, // Update comments count for the specific post
+        }));
+    } catch (err) {
+        setError(err.message);
+    }
+};
+
 return (
     <motion.div
       initial={{ opacity: 0 }}
