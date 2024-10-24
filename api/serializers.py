@@ -123,7 +123,33 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'email', 'username', 'first_name', 'last_name',
+            'bio', 'gender', 'profile_picture', 'location', 
+            'phone_number', 'website', 'date_of_birth'
+        ]  # Include fields relevant for profile update
 
+    def update(self, instance, validated_data):
+        # Update user fields with validated data
+        instance.email = validated_data.get('email', instance.email)
+        instance.username = validated_data.get('username', instance.username)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.bio = validated_data.get('bio', instance.bio)
+        instance.gender = validated_data.get('gender', instance.gender)
+        instance.location = validated_data.get('location', instance.location)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+        instance.website = validated_data.get('website', instance.website)
+        instance.date_of_birth = validated_data.get('date_of_birth', instance.date_of_birth)
+        
+        if 'profile_picture' in validated_data:
+            instance.profile_picture = validated_data['profile_picture']
+
+        instance.save()
+        return instance
 
 class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)  # To display the author's username

@@ -5,7 +5,6 @@ const SubCommentList = ({ commentId, userId }) => {
     const [subComments, setSubComments] = useState([]);
     const [error, setError] = useState(null);
 
-    // Fetch subcomments for the specific comment when the component mounts
     useEffect(() => {
         const fetchSubComments = async () => {
             const token = localStorage.getItem('token');
@@ -22,7 +21,7 @@ const SubCommentList = ({ commentId, userId }) => {
                 }
 
                 const data = await response.json();
-                setSubComments(data); // Set subcomments state with fetched data
+                setSubComments(data);
             } catch (err) {
                 setError(err.message);
             }
@@ -32,31 +31,65 @@ const SubCommentList = ({ commentId, userId }) => {
     }, [commentId]);
 
     const handleSubCommentPosted = (newSubComment) => {
-        setSubComments((prev) => [...prev, newSubComment]); // Add the new subcomment to the list
+        setSubComments((prev) => [...prev, newSubComment]);
+    };
+
+    const handleLike = async (subCommentId, liked) => {
+        const token = localStorage.getItem('token');
+        const method = liked ? 'DELETE' : 'POST'; // DELETE to unlike, POST to like
+
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/subcomments/${subCommentId}/like/`, {
+                method: method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to like/unlike subcomment');
+            }
+
+            // Update the local state to reflect the like/unlike action
+            setSubComments((prevSubComments) =>
+                prevSubComments.map((sub) => 
+                    sub.id === subCommentId ? { ...sub, liked: !liked, likeCount: sub.liked ? sub.likeCount - 1 : sub.likeCount + 1 } : sub
+                )
+            );
+        } catch (err) {
+            setError(err.message);
+        }
     };
 
     return (
-        <div className="mt-4 flex justify-end"> {/* Align to the right */}
-            <div className="max-w-sm w-full"> {/* Set a maximum width for the subcomment list */}
+        <div className="mt-4 flex justify-end">
+            <div className="max-w-sm w-full">
                 <SubComment commentId={commentId} userId={userId} onSubCommentPosted={handleSubCommentPosted} />
                 {error && <p className="text-red-500">{error}</p>}
-                <div className="space-y-2 mt-2"> {/* Reduce the space between subcomments */}
+                <div className="space-y-2 mt-2">
                     {subComments.map((sub) => (
-                        <div key={sub.id} className="bg-gray-100 p-1 rounded-lg flex items-start"> {/* Reduce padding */}
-                            {/* User's Profile Picture and Username */}
+                        <div key={sub.id} className="bg-gray-100 p-1 rounded-lg flex items-start">
                             <img 
                                 src={sub.author?.profile_picture || 'default-avatar.png'} 
                                 alt="Profile" 
-                                className="h-6 w-6 rounded-full mr-2" // Smaller size
+                                className="h-6 w-6 rounded-full mr-2" 
                             />
-                            <div>
-                                <div className="flex items-center">
+                            <div className="flex-grow">
+                                <div className="flex items-center justify-between">
                                     <span className="font-semibold text-gray-800 text-xs">
                                         {sub.author ? sub.author.username : 'Unknown User'}
                                     </span>
                                     <span className="text-gray-500 text-xs ml-2">{new Date(sub.created_at).toLocaleString()}</span>
                                 </div>
-                                <p className="text-gray-700 text-xs mt-1">{sub.content}</p> {/* Smaller text size */}
+                                <p className="text-gray-700 text-xs mt-1">{sub.content}</p>
+                                <div className="flex items-center mt-2">
+                                    <button
+                                        onClick={() => handleLike(sub.id, sub.liked)}
+                                        className={`text-xs ${sub.liked ? 'text-blue-500' : 'text-gray-500'}`}
+                                    >
+                                        {sub.liked ? 'Unlike' : 'Like'} ({sub.likeCount || 0})
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

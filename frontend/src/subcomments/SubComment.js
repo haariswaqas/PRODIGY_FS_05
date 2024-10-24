@@ -1,4 +1,3 @@
-// SubComment.js
 import React, { useState } from 'react';
 
 const SubComment = ({ commentId, userId, onSubCommentPosted }) => {
@@ -23,8 +22,8 @@ const SubComment = ({ commentId, userId, onSubCommentPosted }) => {
                 },
                 body: JSON.stringify({
                     content: subComment,
-                    comment: commentId, // Include comment ID in the request body
-                    user: userId // Optional, depending on your backend logic
+                    comment: commentId,
+                    user: userId
                 })
             });
 
@@ -32,12 +31,10 @@ const SubComment = ({ commentId, userId, onSubCommentPosted }) => {
                 throw new Error('Failed to submit the subcomment');
             }
 
-            // Clear the subcomment input and reset error on success
             setSubComment('');
-            setError(null); 
+            setError(null);
 
-            // Trigger callback to notify parent about new subcomment
-            const newSubComment = await response.json(); // Assuming the API returns the new subcomment
+            const newSubComment = await response.json();
             onSubCommentPosted(newSubComment);
         } catch (err) {
             setError(err.message);

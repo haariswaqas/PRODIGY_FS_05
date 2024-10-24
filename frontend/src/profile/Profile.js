@@ -274,9 +274,32 @@ return (
           className="bg-gray-100 p-4 rounded-lg shadow-sm"
         >
           <h4 className="text-lg font-semibold mb-2">Details</h4>
-          <div className="space-y-2">
-            {/* Details items */}
-          </div>
+<div className="space-y-2">
+  {/* Display location */}
+  {profile.location && (
+    <div className="flex items-center space-x-2">
+      <span className="font-semibold">Location:</span>
+      <span>{profile.location}</span>
+    </div>
+  )}
+  
+  {/* Display phone number */}
+  {profile.phone_number && (
+    <div className="flex items-center space-x-2">
+      <span className="font-semibold">Phone Number:</span>
+      <span>{profile.phone_number}</span>
+    </div>
+  )}
+
+  {/* Add more details if needed */}
+  {profile.email && (
+    <div className="flex items-center space-x-2">
+      <span className="font-semibold">Email:</span>
+      <span>{profile.email}</span>
+    </div>
+  )}
+</div>
+
         </motion.div>
       </div>
 

@@ -14,6 +14,7 @@ import Comment from './comments/Comment';
 import CompactPostForm from './posts/CompactPostForm';
 
 import './App.css';
+import EditProfile from './profile/EditProfile';
 
 const App = () => {
     return (
@@ -30,7 +31,7 @@ const App = () => {
                     
                     {/* Profile Route with dynamic ID */}
                     <Route path="/profile/:id/" element={<Profile />} />
-                    <Route path="/edit-profile/:id/" element={<Register />} />
+                    <Route path="/edit-profile/:id/" element={<EditProfile />} />
                     <Route path="/profiles" element={<ProfileList />} />
 
                     {/* Posts and Post Creation Routes */}

@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from api.models import User, Post, Comment, SubComment
-from api.serializers import UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, PostSerializer, RepostSerializer, CommentSerializer, SubCommentSerializer
+from api.serializers import UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer, PostSerializer, RepostSerializer, CommentSerializer, SubCommentSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
@@ -55,16 +55,14 @@ class ProfileDetailView(generics.RetrieveAPIView):
 
 class ProfileEditView(generics.UpdateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Adjust permissions as necessary
+    serializer_class = ProfileSerializer
 
     def get_object(self):
-        user = super().get_object()
-        if user != self.request.user:
-            raise PermissionDenied("You do not have permission to edit this profile.")
-        return user  # Only allow the owner to edit their own profile
-    
-    
+        # Override get_object to retrieve the user instance based on the request
+        user = self.request.user  # Assuming user is authenticated and passed in request
+        return user
+
     
     
     
