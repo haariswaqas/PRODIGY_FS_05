@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faThumbsDown, faComment } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
 import Comment from '../comments/Comment';
+import FollowersList from '../followers/FollowersList';
+import FollowingList from '../followers/FollowingList';
 
 const Profile = () => {
   const { authState } = useAuth();
@@ -17,6 +19,8 @@ const Profile = () => {
   const userId = authState.user?.id;
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
   const [followingCount, setFollowingCount] = useState(0);
   const [commentsCount, setCommentsCount] = useState({});
   const [posts, setPosts] = useState([]); // State to hold posts
@@ -119,6 +123,9 @@ const Profile = () => {
     }
   };
 
+
+  
+
   if (error) {
     return <div className="text-center text-red-500">{error}</div>;
   }
@@ -199,7 +206,13 @@ const handleToggleCommentForm = (postId) => {
       [postId]: !prevState[postId],
   }));
 };
+const toggleFollowers = () => {
+  setShowFollowers((prev) => !prev); // Toggle followers visibility
+};
 
+const toggleFollowing = () => {
+  setShowFollowing((prev) => !prev); // Toggle following visibility
+};
 const fetchComments = async (postId) => {
     const token = localStorage.getItem('token');
     try {
@@ -240,6 +253,10 @@ return (
             src={profile.profile_picture}
             alt="Profile"
             className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-200"
+
+
+
+            
           />
         ) : (
           <FaUserCircle size={128} color="#9CA3AF" className="mx-auto mb-4" />
@@ -247,14 +264,36 @@ return (
         <h3 className="text-xl font-semibold">{profile.first_name} {profile.last_name}</h3>
         <p className="text-gray-600">@{profile.username}</p>
         <div className="flex justify-center space-x-4 mt-2">
-          <div className="flex items-center text-sm">
-            <span className="font-bold mr-1">{followersCount}</span> Followers
-          </div>
-          <div className="flex items-center text-sm">
-            <span className="font-bold mr-1">{followingCount}</span> Following
-          </div>
+        <div
+          className="flex items-center text-sm cursor-pointer"
+          onClick={toggleFollowers} // Toggle followers on click
+        >
+          <span className="font-bold mr-1">{followersCount}</span> Followers
+        </div>
+        <div
+          className="flex items-center text-sm cursor-pointer"
+          onClick={toggleFollowing} // Toggle following on click
+        >
+          <span className="font-bold mr-1">{followingCount}</span> Following
         </div>
       </div>
+      </div>
+      <div className="max-w-4xl mx-auto p-4 bg-white rounded-lg shadow-md">
+  <div className="flex justify-between items-start mt-4">
+    {showFollowers && (
+      <div className="w-full max-w-md">
+        <FollowersList profile={profile} />
+      </div>
+    )}
+
+    {showFollowing && (
+      <div className="w-full max-w-md">
+        <FollowingList profile={profile} />
+      </div>
+    )}
+  </div>
+</div>
+
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <motion.div
@@ -338,6 +377,9 @@ return (
           </Link>
         </div>
       )}
+
+
+
 
       {/* Display user posts */}
       <div className="mt-6">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CommentList from './CommentList'; // Adjust the path if necessary
-import { FaPaperPlane } from 'react-icons/fa'; // Import the "Send" icon from Font Awesome
+import { FaPaperPlane } from 'react-icons/fa';
 
 const Comment = ({ postId, userId }) => {
     const [comment, setComment] = useState('');
@@ -15,20 +15,24 @@ const Comment = ({ postId, userId }) => {
                 const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/comments/`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`, // Include the token in the request
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
-
+        
                 if (!response.ok) {
                     throw new Error('Failed to fetch comments');
                 }
-
+        
                 const data = await response.json();
-                setComments(data); // Set comments state with fetched data
+                setComments(data.map(comment => ({
+                    ...comment,
+                    likes_count: comment.likes_count || comment.likes || 0, // Ensure likes_count is correctly set
+                }))); 
             } catch (err) {
-                setError(err.message); // Set error state if there's an error
+                setError(err.message);
             }
         };
+        
 
         fetchComments();
     }, [postId]);
@@ -63,7 +67,7 @@ const Comment = ({ postId, userId }) => {
 
             // Clear the comment input and reset error on success
             const newComment = await response.json(); // Assuming the API returns the new comment
-            setComments((prevComments) => [...prevComments, newComment]); // Add new comment to the state
+            setComments((prevComments) => [newComment, ...prevComments]); // Add new comment to the state
             setComment(''); // Clear the input
             setError(null); // Reset error
         } catch (err) {
@@ -71,9 +75,9 @@ const Comment = ({ postId, userId }) => {
         }
     };
 
-    const handleCommentLike = async (commentId) => {
+    const handleCommentLike = async (commentId, isLiked) => {
         const token = localStorage.getItem('token');
-
+    
         try {
             const response = await fetch(`http://127.0.0.1:8000/api/comments/${commentId}/like/`, {
                 method: 'POST',
@@ -81,20 +85,25 @@ const Comment = ({ postId, userId }) => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
+    
             if (!response.ok) {
                 throw new Error('Failed to like the comment');
             }
-
-            // Optionally, you could also update the comments state if needed
-            const updatedComment = await response.json(); // Assuming the API returns the updated comment
+    
+            // Update the comments state
+            const updatedComment = await response.json();
             setComments((prevComments) =>
-                prevComments.map((c) => (c.id === updatedComment.id ? updatedComment : c))
+                prevComments.map((c) =>
+                    c.id === commentId
+                        ? { ...c, likes_count: updatedComment.likes_count, is_liked_by_user: !isLiked } // Update with likes_count from server
+                        : c
+                )
             );
         } catch (err) {
             console.error(err.message);
         }
     };
+    
 
     return (
         <div className="comment-form mt-4">

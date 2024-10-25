@@ -15,6 +15,7 @@ import CompactPostForm from './posts/CompactPostForm';
 
 import './App.css';
 import EditProfile from './profile/EditProfile';
+import FollowersList from './followers/FollowersList';
 
 const App = () => {
     return (
@@ -33,6 +34,8 @@ const App = () => {
                     <Route path="/profile/:id/" element={<Profile />} />
                     <Route path="/edit-profile/:id/" element={<EditProfile />} />
                     <Route path="/profiles" element={<ProfileList />} />
+
+                    <Route path="/username:/followers" element={<FollowersList />} />
 
                     {/* Posts and Post Creation Routes */}
                     <Route path="/create_post" element={<Post />} />

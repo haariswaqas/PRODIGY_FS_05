@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { AiOutlineCamera, AiFillCheckCircle } from 'react-icons/ai';
+import { MdSend } from 'react-icons/md';
 import { BiErrorCircle } from 'react-icons/bi';
 import { AiOutlineClose } from 'react-icons/ai'; // Import close icon
 
@@ -106,21 +107,26 @@ const CompactPostForm = ({ onPostSuccess }) => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    <input
-                        type="checkbox"
-                        checked={isPublic}
-                        onChange={(e) => setIsPublic(e.target.checked)}
-                        className="mr-2"
-                    />
-                    <label className="text-sm text-gray-300">Public</label>
-                </div>
-
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
-                >
-                    Post
-                </button>
+            <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="mr-2"
+            />
+            <label className="text-sm text-gray-300">
+                {isPublic ? 'Public' : 'Private (Only you can see)'}
+            </label>
+        </div>
+        <motion.button
+  type="submit"
+  className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 w-full flex justify-center items-center"
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+  transition={{ duration: 0.3 }}
+>
+  <MdSend size={24} className="mr-2" />
+  {'Create Post'}
+</motion.button>
             </form>
 
             {error && (

@@ -166,13 +166,29 @@ class RepostSerializer(serializers.ModelSerializer):
         read_only_fields = ['author', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public']  # Make fields read-only
 
     
+from rest_framework import serializers
+from .models import Comment
+from .serializers import UserSerializer
+
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    is_liked_by_user = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'author', 'content', 'created_at', 'likes']
-        read_only_fields = ['author', 'created_at']  # Author and created_at should be read-only
-        
+        fields = ['id', 'post', 'author', 'content', 'created_at', 'likes', 'is_liked_by_user']
+        read_only_fields = ['author', 'created_at']
+
+    def get_is_liked_by_user(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()  # Assuming `likes` is a ManyToManyField
+        return False
+
+    def create(self, validated_data):
+        # If post is passed in, it should be handled here
+        return super().create(validated_data)
+
 class SubCommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     
