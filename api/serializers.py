@@ -173,21 +173,21 @@ from .serializers import UserSerializer
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     is_liked_by_user = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()  # Add this line
 
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'author', 'content', 'created_at', 'likes', 'is_liked_by_user']
+        fields = ['id', 'post', 'author', 'content', 'created_at', 'likes', 'is_liked_by_user', 'like_count']
         read_only_fields = ['author', 'created_at']
 
     def get_is_liked_by_user(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return obj.likes.filter(id=request.user.id).exists()  # Assuming `likes` is a ManyToManyField
+            return obj.likes.filter(id=request.user.id).exists()
         return False
 
-    def create(self, validated_data):
-        # If post is passed in, it should be handled here
-        return super().create(validated_data)
+    def get_like_count(self, obj):
+        return obj.like_count  # Accesses the property from the model
 
 class SubCommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { FaPaperPlane } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import SubCommentList from '../subcomments/SubCommentList';
+import { useAuth } from '../context/AuthContext';
 
 const formatDate = (dateString) => {
     const options = { 
@@ -14,30 +16,75 @@ const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-const CommentList = ({ comments: initialComments }) => {
-    const [comments, setComments] = useState(initialComments);
+const CommentSection = ({ postId }) => {
+    const [comment, setComment] = useState('');
+    const [error, setError] = useState(null);
+    const [comments, setComments] = useState([]);
     const [expandedCommentId, setExpandedCommentId] = useState(null);
     const [pendingLikes, setPendingLikes] = useState(new Set());
-    
-    useEffect(() => {
-        setComments(initialComments);
-    }, [initialComments]);
+    const { authState } = useAuth(); // Get the auth state to access user info
 
-    // Function to fetch the latest comments and their like counts
-    const fetchComments = async () => {
+    // Fetch comments for the post when the component mounts
+    useEffect(() => {
+        const fetchComments = async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/posts/${postId}/comments/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch comments');
+                }
+
+                const data = await response.json();
+                setComments(data); // Set comments including like counts
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchComments();
+    }, [postId]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+
+        if (!comment.trim()) {
+            setError('Comment cannot be empty');
+            return;
+        }
+
         try {
-            const response = await fetch(`http://127.0.0.1:8000/api/comments/`);
-            const updatedComments = await response.json();
-            setComments(updatedComments);
-        } catch (error) {
-            console.error('Failed to fetch comments:', error);
+            const response = await fetch(`http://127.0.0.1:8000/api/comments/create/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    content: comment,
+                    post: postId,
+                    user: authState.user.id, // Use the user ID from AuthContext
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit the comment');
+            }
+
+            const newComment = await response.json();
+            setComments((prevComments) => [newComment, ...prevComments]); // Add new comment to the state
+            setComment(''); // Clear the input
+            setError(null); // Reset error
+        } catch (err) {
+            setError(err.message);
         }
     };
-
-    useEffect(() => {
-        // Fetch comments after the component mounts to get the latest likes count
-        fetchComments();
-    }, []);
 
     const handleCommentLike = useCallback(async (commentId) => {
         const token = localStorage.getItem('token');
@@ -49,16 +96,14 @@ const CommentList = ({ comments: initialComments }) => {
         setPendingLikes(prev => new Set(prev).add(commentId));
 
         try {
-            const currentComment = comments.find(c => c.id === commentId);
-            const currentLikes = currentComment?.likes_count || currentComment?.likes || 0;
-
+            // Optimistic UI update
             setComments(prevComments =>
                 prevComments.map(comment => {
                     if (comment.id === commentId) {
                         return {
                             ...comment,
-                            likes_count: comment.is_liked_by_user ? currentLikes - 1 : currentLikes + 1,
-                            is_liked_by_user: !comment.is_liked_by_user
+                            is_liked_by_user: !comment.is_liked_by_user, // Toggle liked state
+                            like_count: comment.is_liked_by_user ? comment.like_count - 1 : comment.like_count + 1 // Update like count
                         };
                     }
                     return comment;
@@ -76,24 +121,7 @@ const CommentList = ({ comments: initialComments }) => {
                 throw new Error('Failed to like the comment');
             }
 
-            // Refetch comments to ensure likes are up to date
-            fetchComments();  // Fetching again to get updated likes
-
         } catch (error) {
-            // Revert optimistic update on error
-            setComments(prevComments =>
-                prevComments.map(comment => {
-                    if (comment.id === commentId) {
-                        const currentLikes = comment?.likes_count || comment?.likes || 0;
-                        return {
-                            ...comment,
-                            likes_count: comment.is_liked_by_user ? currentLikes + 1 : currentLikes - 1,
-                            is_liked_by_user: !comment.is_liked_by_user
-                        };
-                    }
-                    return comment;
-                })
-            );
             console.error('Error updating like status:', error);
         } finally {
             setPendingLikes(prev => {
@@ -102,7 +130,7 @@ const CommentList = ({ comments: initialComments }) => {
                 return newSet;
             });
         }
-    }, [comments]);
+    }, []);
 
     const handleReplyClick = useCallback((commentId) => {
         setExpandedCommentId(prevId => prevId === commentId ? null : commentId);
@@ -113,12 +141,30 @@ const CommentList = ({ comments: initialComments }) => {
     );
 
     return (
-        <div className="mt-6 max-w-xl mx-auto">
+        <div className="comment-form mt-4">
+            <h2 className="text-2xl font-bold mb-4">Add a Comment</h2>
+            <form onSubmit={handleSubmit} className="flex items-start space-x-2">
+                <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full p-2 border rounded"
+                    placeholder="Write your comment here..."
+                    rows="4"
+                    style={{ width: '90%', minHeight: '100px' }}
+                ></textarea>
+                <button
+                    type="submit"
+                    className="bg-blue-500 text-white p-3 rounded-full hover:bg-blue-700 flex items-center justify-center"
+                    style={{ height: '40px', width: '40px' }}
+                >
+                    <FaPaperPlane />
+                </button>
+            </form>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
+
             <h3 className="text-lg font-semibold mb-4">Comments ({comments.length})</h3>
             <div className="space-y-3">
                 {sortedComments.map((comment) => {
-                    const likesCount = comment.likes_count ?? comment.likes ?? 0;
-
                     return (
                         <motion.div
                             key={comment.id}
@@ -151,9 +197,7 @@ const CommentList = ({ comments: initialComments }) => {
                             <div className="border-t border-gray-200 mt-2 pt-2 text-gray-600 text-xs flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                     <button 
-                                        className={`flex items-center space-x-1 hover:text-blue-500 transition duration-200 ${
-                                            comment.is_liked_by_user ? 'text-blue-500' : ''
-                                        }`}
+                                        className={`flex items-center space-x-1 hover:text-blue-500 transition duration-200 ${comment.is_liked_by_user ? 'text-blue-500' : ''}`}
                                         onClick={() => handleCommentLike(comment.id)}
                                         disabled={pendingLikes.has(comment.id)}
                                     >
@@ -162,7 +206,7 @@ const CommentList = ({ comments: initialComments }) => {
                                                 comment.is_liked_by_user ? 'Unlike' : 'Like'}
                                         </span>
                                     </button>
-                                    <span className="text-gray-500">({likesCount})</span>
+                                    <span className="text-gray-500">{comment.like_count} {comment.like_count === 1 ? 'Like' : 'Likes'}</span> {/* Display like count */}
                                 </div>
                                 <button 
                                     className="hover:text-blue-500 transition duration-200"
@@ -171,19 +215,8 @@ const CommentList = ({ comments: initialComments }) => {
                                     Reply
                                 </button>
                             </div>
-
                             {expandedCommentId === comment.id && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="mt-2 bg-gray-50 p-2 rounded-lg shadow-sm"
-                                >
-                                    <SubCommentList 
-                                        commentId={comment.id} 
-                                        userId={comment.author?.id} 
-                                    />
-                                </motion.div>
+                                <SubCommentList parentCommentId={comment.id} />
                             )}
                         </motion.div>
                     );
@@ -193,4 +226,4 @@ const CommentList = ({ comments: initialComments }) => {
     );
 };
 
-export default CommentList;
+export default CommentSection;

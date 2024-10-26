@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faThumbsDown, faComment, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Comment from '../comments/Comment';
+
+import CommentSection from '../comments/CommentSection';
 
 const formatDate = (dateString) => {
     const options = { 
@@ -21,7 +22,7 @@ const formatDate = (dateString) => {
 };
 
 const PostsList = () => {
-    const { id } = useParams();
+    
     const { authState } = useAuth();
     const navigate = useNavigate();
     const userId = authState.user?.id;
@@ -309,10 +310,11 @@ const PostsList = () => {
                </div>
                         </div>
 
-                        {/* Comment Form Toggle */}
-                        {showCommentForm[post.id] && (
-                            <Comment postId={post.id} />
-                        )}
+                       {/* Comment Form Toggle */}
+{showCommentForm[post.id] && (
+    <CommentSection postId={post.id} />
+)}
+
                     </motion.div>
                 ))}
             </motion.div>

@@ -10,7 +10,7 @@ import ProfileList from './profile/ProfileList';
 import NavBar from './navbar/NavBar';
 import Post from './posts/Post';
 import PostsList from './posts/PostsList';
-import Comment from './comments/Comment';
+
 import CompactPostForm from './posts/CompactPostForm';
 
 import './App.css';
@@ -44,7 +44,7 @@ const App = () => {
 
                     <Route path="/posts" element={<PostsList />} />
 
-                    <Route path="/create_comment" element={<Comment />} />
+                   
                 </Routes>
             </Router>
         </AuthProvider>
