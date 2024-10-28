@@ -7,5 +7,6 @@ from .models import User, Post, Comment, SubComment
 
 admin.site.register(User)
 admin.site.register(Post)
+
 admin.site.register(Comment)
 admin.site.register(SubComment)

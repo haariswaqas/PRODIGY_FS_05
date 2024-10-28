@@ -151,20 +151,53 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+#class PostSerializer(serializers.ModelSerializer):
+#    author = UserSerializer(read_only=True)  # To display the author's username
+#    class Meta:
+#        model = Post
+#        fields = ['id', 'author', 'content', 'image', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public', 'reposted_from']
+
+#    def create(self, validated_data):
+#        return super().create(validated_data)
+#class RepostSerializer(serializers.ModelSerializer):
+#    reposted_from = serializers.PrimaryKeyRelatedField(read_only=True)  # Read-only field for reposted post
+
+ #   class Meta:
+ #       model = Post
+ #       fields = '__all__'
+  
+  
+
+# Assuming you have a UserSerializer to serialize user details
+class RepostedFromSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)  # Serialize original author details
+
+    class Meta:
+        model = Post  # Assuming Post has a ForeignKey to User
+        fields = ['id', 'author', 'content', 'image', 'created_at']  # Include necessary fields
+
+
 class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)  # To display the author's username
-    
+    reposted_from = RepostedFromSerializer(read_only=True)  # Serialize reposted_from details
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'content', 'image', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public']
-        
-class RepostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = ['content', 'image', 'reposted_from']  # Include the reposted_from field if necessary
-        read_only_fields = ['author', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public']  # Make fields read-only
+        fields = ['id', 'author', 'content', 'image', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public', 'reposted_from']
 
+    def create(self, validated_data):
+        return super().create(validated_data)
+  
+ 
+ 
+     
+  
+  
+  
+  
+  
+
+  
     
 from rest_framework import serializers
 from .models import Comment
@@ -191,8 +224,19 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class SubCommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
+    is_liked_by_user = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()  # Add this line
     
     class Meta:
         model = SubComment
-        fields = ['id', 'comment', 'author', 'content', 'created_at', 'likes']
+        fields = ['id', 'comment', 'author', 'content', 'created_at', 'likes', 'like_count', 'is_liked_by_user']
         read_only_fields = ['author', 'created_at']  # Author and created_at should be read-only
+        
+    def get_is_liked_by_user(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False
+
+    def get_like_count(self, obj):
+        return obj.like_count  # Accesses the property from the model

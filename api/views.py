@@ -2,11 +2,13 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from api.models import User, Post, Comment, SubComment
-from api.serializers import UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer, PostSerializer, RepostSerializer, CommentSerializer, SubCommentSerializer
+from api.serializers import UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ProfileSerializer, PostSerializer, CommentSerializer, SubCommentSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+
+from api import models
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -168,47 +170,102 @@ class PostCreateView(generics.CreateAPIView):
         # Set the author of the post to the current logged-in user
         serializer.save(author=self.request.user)
 
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from .models import Post
+
+"""
 class RepostCreateView(generics.CreateAPIView):
-    serializer_class = RepostSerializer
+    serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        original_post = get_object_or_404(Post, id=self.request.data['post_id'])  # Get the original post
-        serializer.save(author=self.request.user, reposted_from=original_post)  # Save the repost with the current user and link to the original post
+        post_id = self.request.data.get('post_id')
+        if not post_id:
+            return Response({"error": "post_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        original_post = get_object_or_404(Post, id=post_id)
+
+        repost = serializer.save(
+            author=self.request.user,
+            reposted_from=original_post,
+            content=original_post.content,  # Copy the original content
+            image=original_post.image  # Copy the original image
+        )
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+
+
+
+        
 """
-class RepostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.filter(reposted_from__isnull=False)  # Queryset to get only reposts
+
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.db import models
+from .models import Post
+from .serializers import PostSerializer
+from rest_framework.exceptions import PermissionDenied
+
+class RepostCreateView1(generics.CreateAPIView):
+    serializer_class = PostSerializer  # Use the RepostSerializer here
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        # Get the original post
+        original_post_id = request.data.get('original_post_id')
+        if not original_post_id:
+            return Response(
+                {"error": "original_post_id is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate the original post
+        original_post = get_object_or_404(Post, id=original_post_id)
+
+        # Create the repost
+        repost_data = {
+            'original_post_id': original_post.id,
+           
+            'is_public': True  # You might want to allow users to control this
+        }
+
+        serializer = self.get_serializer(data=repost_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        # Save the post, which will now include the author set in the serializer
+        serializer.save(author=self.request.user)
+        
+        
+class RepostCreateView(generics.CreateAPIView):
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]  # Only authenticated users can access
+    permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        repost = super().get_object()
-        # Allow viewing the repost if it's public or if the current user is the author
-        if repost.is_public or (self.request.user.is_authenticated and repost.author == self.request.user):
-            return repost
-        else:
-            raise PermissionDenied("You do not have permission to view this repost.")
+    def perform_create(self, serializer):
+        post_id = self.request.data.get('post_id')
+        if not post_id:
+            return Response({"error": "post_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-    def perform_update(self, serializer):
-        repost = self.get_object()
-        if repost.author == self.request.user:
-            serializer.save()  # Save the updated repost
-        else:
-            raise PermissionDenied("You do not have permission to edit this repost.")
+        original_post = get_object_or_404(Post, id=post_id)
 
-    def perform_destroy(self, instance):
-        if instance.author == self.request.user:
-            instance.delete()  # Delete the repost
-        else:
-            raise PermissionDenied("You do not have permission to delete this repost.")
+        repost = serializer.save(
+            author=self.request.user,
+            reposted_from=original_post,
+            content=original_post.content,  # Copy the original content
+            image=original_post.image  # Copy the original image
+        )
 
-"""
-
-
-
-
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 
@@ -253,7 +310,6 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
             instance.delete()  # Delete the post
         else:
             raise PermissionDenied("You do not have permission to delete this post.")
-
 
 class LikeUnlikePostView(APIView):
     permission_classes = [IsAuthenticated]  # Only authenticated users can like/unlike posts

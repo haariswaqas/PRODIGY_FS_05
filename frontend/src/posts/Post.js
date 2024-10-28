@@ -108,16 +108,14 @@ const Post = () => {
             variants={formVariants}
         >
             <motion.div
-                className="bg-blue-700 p-10 rounded-2xl shadow-xl max-w-md w-full"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="bg-blue-600 p-10 rounded-2xl shadow-xl max-w-md w-full"
                 transition={{ duration: 0.3 }}
             >
                 <h2 className="text-3xl font-bold mb-6 text-center text-white">
                     {id ? 'Edit Post' : 'New Post'}
                 </h2>
                 <form onSubmit={createOrEditPost} className="flex flex-col space-y-6">
-                    <textarea
+                    <motion.textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="What's on your mind?"

@@ -50,6 +50,9 @@ class Post(models.Model):
     is_public = models.BooleanField(default=True)  # Visibility flag (public or private post)
     reposted_from = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='reposts')  # Link to the original post
 
+    # Repost related fields
+   
+    
     
 
     @property
@@ -95,8 +98,15 @@ class SubComment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp for when the sub-comment is last updated
     likes = models.ManyToManyField(User, related_name='liked_sub_comments', blank=True)  # Users who liked the sub-comment
 
+    @property
+    def like_count(self):
+        return self.likes.count()  # Count the number of likes on the comment
+
+    def __str__(self):
+        return f'Comment by {self.author.username}'  # Assuming Post has a title field
+
     class Meta:
-        ordering = ['-created_at']  # Order by newest sub-comment first
+        ordering = ['-created_at']  # Order by newest comment first
 
     def __str__(self):
         return f'SubComment by {self.author.username} on comment {self.comment.id}'

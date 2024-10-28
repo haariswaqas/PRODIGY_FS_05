@@ -28,6 +28,7 @@ urlpatterns = [
     path('posts/create/', views.PostCreateView.as_view(), name='post-create'), # Endpoint for creating a new post
     
     path('posts/repost/', views.RepostCreateView.as_view(), name='repost-create'),  # Create a repost
+    
     # path('posts/repost/<int:pk>/', views.RepostDetailView.as_view(), name='repost-detail'),  # Get, update, delete repost
 
     

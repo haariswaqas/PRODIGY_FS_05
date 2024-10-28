@@ -11,6 +11,7 @@ import NavBar from './navbar/NavBar';
 import Post from './posts/Post';
 import PostsList from './posts/PostsList';
 
+
 import CompactPostForm from './posts/CompactPostForm';
 
 import './App.css';
@@ -43,6 +44,7 @@ const App = () => {
                     <Route path="/compact_post" element={<CompactPostForm />} />
 
                     <Route path="/posts" element={<PostsList />} />
+                
 
                    
                 </Routes>
