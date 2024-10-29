@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ThumbsUp, Send, AlertCircle, Reply } from 'lucide-react';
+import { User, ThumbsUp, Send, AlertCircle, Reply } from 'lucide-react';
+import {motion, AnimatePresence} from 'framer-motion';
 
 const SubCommentSection = ({ commentId, userId }) => {
     const [subComments, setSubComments] = useState([]);
@@ -130,43 +131,59 @@ const SubCommentSection = ({ commentId, userId }) => {
 
     return (
         <div className="mt-4 flex justify-end">
-            <div className="max-w-sm w-full space-y-4">
-                {/* Subcomment Form */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 transition-all duration-200 hover:shadow-md">
-                    <form onSubmit={handleSubCommentSubmit} className="space-y-3">
-                        <textarea
-                            value={subComment}
-                            onChange={(e) => setSubComment(e.target.value)}
-                            className="w-full p-3 border border-gray-200 rounded-lg resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                            placeholder="Write your reply here..."
-                            rows="2"
-                        />
-                        <div className="flex justify-end">
-                            <button 
-                                type="submit" 
-                                disabled={isSubmitting}
-                                className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:bg-blue-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <Reply className="h-4 w-4" />
-                                {isSubmitting ? 'Sending...' : ''}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                {/* Subcomments List */}
-                <div className="space-y-3">
+        <div className="max-w-sm w-full space-y-4">
+            {/* Subcomment Form */}
+            <motion.div 
+                initial={{ opacity: 0, y: -20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.3 }} 
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 transition-all duration-200 hover:shadow-md"
+            >
+                <form onSubmit={handleSubCommentSubmit} className="space-y-3">
+                    <textarea
+                        value={subComment}
+                        onChange={(e) => setSubComment(e.target.value)}
+                        className="w-full p-3 border border-gray-200 rounded-lg resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        placeholder="Write your reply here..."
+                        rows="2"
+                    />
+                    <div className="flex justify-end">
+                        <motion.button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            whileHover={{ scale: 1.05 }} 
+                            whileTap={{ scale: 0.95 }} 
+                            className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:bg-blue-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <Reply className="h-4 w-4" />
+                            {isSubmitting ? 'Sending...' : ''}
+                        </motion.button>
+                    </div>
+                </form>
+            </motion.div>
+    
+            {/* Subcomments List */}
+            <div className="space-y-3">
+                <AnimatePresence>
                     {subComments.map((sub) => (
-                        <div 
+                        <motion.div 
                             key={sub.id} 
+                            initial={{ opacity: 0, y: 20 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            exit={{ opacity: 0, y: -20 }} 
+                            transition={{ duration: 0.3 }} 
                             className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
                         >
                             <div className="flex items-start gap-3">
-                                <img
-                                    src={sub.author?.profile_picture || 'default-avatar.png'}
-                                    alt="Profile"
-                                    className="h-8 w-8 rounded-full object-cover ring-2 ring-gray-100"
-                                />
+                                {sub.author?.profile_picture ? (
+                                    <img
+                                        src={sub.author.profile_picture}
+                                        alt="Profile"
+                                        className="h-8 w-8 rounded-full object-cover ring-2 ring-gray-100"
+                                    />
+                                ) : (
+                                    <User size={24} className="text-gray-400" /> 
+                                )}
                                 <div className="flex-grow">
                                     <div className="flex items-center justify-between">
                                         <span className="font-medium text-gray-900">
@@ -178,9 +195,11 @@ const SubCommentSection = ({ commentId, userId }) => {
                                     </div>
                                     <p className="text-gray-700 mt-1">{sub.content}</p>
                                     <div className="mt-3">
-                                        <button
+                                        <motion.button
                                             onClick={() => handleLike(sub.id)}
                                             disabled={pendingLikes.has(sub.id)}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             className={`inline-flex items-center gap-1.5 text-sm transition-all duration-200 hover:scale-105 ${
                                                 pendingLikes.has(sub.id) ? 'opacity-50 cursor-not-allowed' : ''
                                             }`}
@@ -195,15 +214,18 @@ const SubCommentSection = ({ commentId, userId }) => {
                                             <span className={`${sub.is_liked_by_user ? 'text-blue-500' : 'text-gray-500'}`}>
                                                 {sub.like_count || 0}
                                             </span>
-                                        </button>
+                                        </motion.button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </AnimatePresence>
             </div>
         </div>
+    </div>
+    
+    
     );
 };
 

@@ -30,7 +30,7 @@ const Register = () => {
         profilePicture: null,
         locationInput: '',
         phoneNumber: '',
-        website: '',
+        website: null,
         dateOfBirth: '',
     });
 

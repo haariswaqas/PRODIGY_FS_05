@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faThumbsDown, faComment, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { motion } from 'framer-motion';
+import {User} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import formatDate from '../formatting/FormatDate';
@@ -209,13 +210,20 @@ const PostsList = () => {
                         </div>
                    
                     <div className="flex items-center mb-2">
-                        <div className="flex-shrink-0">
-                            <img 
-                                src={post.author.profile_picture || 'default-avatar.png'} 
-                                alt="Profile" 
-                                className="h-10 w-10 rounded-full mr-2 border border-gray-200" 
-                            />
-                        </div>
+                    <div className="flex-shrink-0">
+    {post.author.profile_picture ? (
+        <img 
+            src={post.author.profile_picture} 
+            alt="Profile" 
+            className="h-10 w-10 rounded-full mr-2 border border-gray-200" 
+        />
+    ) : (
+        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center border border-gray-200">
+            <User size={24} className="text-gray-400" /> {/* Use a nice avatar icon */}
+        </div>
+    )}
+</div>
+
                         <div>
                             <Link to={`/profile/${post.author.id}`} className="text-xl font-semibold hover:text-blue-600">
                                 {post.author.first_name} {post.author.last_name}
