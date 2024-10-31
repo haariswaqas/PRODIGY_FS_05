@@ -57,91 +57,93 @@ const CompactPostForm = ({ onPostSuccess }) => {
     };
 
     return (
-        <motion.div
-            className="bg-blue-700 p-4 rounded-lg shadow-lg max-w-lg w-full mx-auto"
-            initial="initial"
-            animate="animate"
-            variants={formVariants}
-        >
-            <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-                <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="What's on your mind?"
-                    className="w-full h-20 px-2 py-2 border border-blue-500 rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-none text-black bg-white"
-                    required
-                />
+<motion.div
+    className="bg-blue-800 p-6 rounded-lg shadow-2xl max-w-md w-full mx-auto"
+    initial="initial"
+    animate="animate"
+    variants={formVariants}
+>
+    <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
+        <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="What's on your mind?"
+            className="w-full h-24 p-3 border border-blue-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-800 bg-white placeholder-gray-400"
+            required
+        />
 
-                <div className="relative">
-                    <input
-                        type="file"
-                        ref={fileInputRef} // Set the ref to the file input
-                        onChange={(e) => {
-                            const file = e.target.files[0];
-                            setImage(file);
-                        }}
-                        className="hidden"
-                    />
+        <div className="relative">
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(e) => {
+                    const file = e.target.files[0];
+                    setImage(file);
+                }}
+                className="hidden"
+            />
+            <button
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+                className="flex items-center justify-center w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300"
+            >
+                <AiOutlineCamera size={20} className="mr-2" />
+                Add Image
+            </button>
+            {image && (
+                <div className="mt-2 flex items-center justify-between bg-blue-100 p-2 rounded-lg text-gray-700">
+                    <p className="text-sm">
+                        <strong>Image selected:</strong> {image.name}
+                    </p>
                     <button
                         type="button"
-                        onClick={() => fileInputRef.current.click()} // Use ref to trigger click
-                        className="flex items-center justify-center w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
+                        onClick={handleRemoveImage}
+                        className="text-red-500 hover:text-red-700 ml-2"
                     >
-                        <AiOutlineCamera size={24} className="mr-2" />
-                        Add Image
+                        <AiOutlineClose size={20} />
                     </button>
-                    {image && (
-                        <div className="mt-2 flex items-center justify-between">
-                            <p className="text-green-300">
-                                Image selected: {image.name}
-                            </p>
-                            <button
-                                type="button"
-                                onClick={handleRemoveImage}
-                                className="ml-2 text-red-500 hover:text-red-700"
-                            >
-                                <AiOutlineClose size={20} />
-                            </button>
-                        </div>
-                    )}
                 </div>
+            )}
+        </div>
 
-                <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2">
             <input
                 type="checkbox"
                 checked={isPublic}
                 onChange={(e) => setIsPublic(e.target.checked)}
-                className="mr-2"
+                className="mr-2 h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-0 focus:ring-offset-0"
             />
-            <label className="text-sm text-gray-300">
+            <label className="text-sm text-gray-200">
                 {isPublic ? 'Public' : 'Private (Only you can see)'}
             </label>
         </div>
-        <motion.button
-  type="submit"
-  className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 w-full flex justify-center items-center"
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
-  transition={{ duration: 0.3 }}
->
-  <MdSend size={24} className="mr-2" />
-  {'Create Post'}
-</motion.button>
-            </form>
 
-            {error && (
-                <p className="mt-4 text-red-400 flex items-center">
-                    <BiErrorCircle size={24} className="mr-2" />
-                    {error}
-                </p>
-            )}
-            {success && (
-                <p className="mt-4 text-green-400 flex items-center">
-                    <AiFillCheckCircle size={24} className="mr-2" />
-                    {success}
-                </p>
-            )}
-        </motion.div>
+        <motion.button
+            type="submit"
+            className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300 w-full flex justify-center items-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+        >
+            <MdSend size={20} className="mr-2" />
+            Create Post
+        </motion.button>
+    </form>
+
+    {error && (
+        <p className="mt-4 text-red-400 flex items-center">
+            <BiErrorCircle size={20} className="mr-2" />
+            {error}
+        </p>
+    )}
+    {success && (
+        <p className="mt-4 text-green-400 flex items-center">
+            <AiFillCheckCircle size={20} className="mr-2" />
+            {success}
+        </p>
+    )}
+</motion.div>
+
     );
 };
 

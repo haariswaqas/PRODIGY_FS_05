@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaSignInAlt, FaUser, FaLock } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
   const { login } = useAuth();
@@ -35,102 +35,91 @@ const Login = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="flex items-center justify-center min-h-screen bg-gradient-to-r from-green-200 to-blue-800"
-    >
+    <div className="min-h-screen bg-gradient-to-b from-indigo-600 to-violet-700 flex items-center justify-center px-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full transform transition duration-300 hover:scale-105"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full"
       >
-        <motion.h2
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-3xl font-bold text-center mb-6 text-white"
+        <motion.div 
+          className="text-center mb-8"
+          initial={{ y: -20 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <span className="text-blue-400">Sign </span> <span className="text-blue-400">In</span>
-        </motion.h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <motion.label
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Username
-            </motion.label>
-            <motion.input
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
-              required
-              className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+          <h2 className="text-4xl font-bold text-white mb-4">Welcome Back</h2>
+          <p className="text-gray-200">Sign in to continue your journey</p>
+        </motion.div>
 
-          <div className="mb-6">
-            <motion.label
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-300 mb-1"
-            >
-              Password
-            </motion.label>
-            <motion.input
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
-              required
-              className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-8 shadow-xl"
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-200 mb-2">
+                Username
+              </label>
+              <div className="relative">
+                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="Enter your username"
+                />
+              </div>
+            </div>
 
-          <div className="mb-4">
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="Enter your password"
+                />
+              </div>
+            </div>
+
             <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full inline-flex items-center justify-center px-8 py-3 text-lg font-medium text-white bg-violet-500 rounded-lg hover:bg-violet-600 transition duration-300"
             >
-              Log In
+              <FaSignInAlt className="mr-2" />
+              Sign In
             </motion.button>
-          </div>
 
-          <p className="text-sm text-center text-gray-400">
-            Don't have an account?{' '}
-            <motion.a
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              href="/register"
-              className="text-blue-400 hover:underline"
-            >
-              Sign up here
-            </motion.a>
-          </p>
-        </form>
+            <div className="text-center mt-6">
+              <p className="text-gray-200">
+                Don't have an account?{' '}
+                <Link
+                  to="/register"
+                  className="text-violet-300 hover:text-violet-200 transition duration-300"
+                >
+                  Sign up here
+                </Link>
+              </p>
+            </div>
+          </form>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 };
 

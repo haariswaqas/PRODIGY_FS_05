@@ -15,6 +15,7 @@ import CommentSection from '../comments/CommentSection';
 const PostsList = () => {
     const { authState } = useAuth();
     const navigate = useNavigate();
+    const [filteredPosts, setFilteredPosts] = useState([]); // New filtered state
     const userId = authState.user?.id;
     const [posts, setPosts] = useState([]);
     const [commentsCount, setCommentsCount] = useState({});
@@ -217,187 +218,168 @@ const PostsList = () => {
     
     return (
         <motion.div
-    className="max-w-4xl mx-auto p-4 bg-blue-50 min-h-screen"
-    initial="initial"
-    animate="animate"
-    variants={formVariants}
->
-    <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">Posts</h2>
-    <motion.div className="space-y-4">
-        {posts.map((post) => (
-            <motion.div
-                key={post.id}
-                className="bg-white p-4 rounded-lg shadow-md transition duration-300 hover:shadow-lg relative"
-                whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-            >
-                <div className="flex items-center mb-2">
-                    <div className="flex-shrink-0">
-                        {post.author.profile_picture ? (
-                            <img 
-                                src={post.author.profile_picture} 
-                                alt="Profile" 
-                                className="h-10 w-10 rounded-full mr-2 border border-gray-200" 
-                            />
-                        ) : (
-                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center border border-gray-200">
-                                <User size={24} className="text-gray-400" /> 
-                            </div>
-                        )}
-                    </div>
+        className="max-w-4xl mx-auto p-4 min-h-screen"
+        initial="initial"
+        animate="animate"
+        variants={formVariants}
+    >
+        <motion.div className="space-y-6">
+            {posts.map((post) => (
+                <motion.div
+                    key={post.id}
+                    className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition duration-300 relative"
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                >
+                    <div className="flex items-center mb-4">
+                        <div className="flex-shrink-0">
+                            {post.author.profile_picture ? (
+                                <img 
+                                    src={post.author.profile_picture} 
+                                    alt="Profile" 
+                                    className="h-12 w-12 rounded-full mr-4 border-2 border-indigo-100 shadow-sm" 
+                                />
+                            ) : (
+                                <div className="h-12 w-12 rounded-full bg-gradient-to-r from-indigo-100 to-violet-100 flex items-center justify-center border-2 border-indigo-100 shadow-sm">
+                                    <User size={24} className="text-indigo-400" />
+                                </div>
+                            )}
+                        </div>
 
-                    <div>
-                        <Link to={`/profile/${post.author.id}`} className="text-xl font-semibold hover:text-blue-600">
-                            {post.author.first_name} {post.author.last_name}
-                        </Link>
                         <div>
-                            <Link to={`/profile/${post.author.id}`} className="text-gray-500 text-sm hover:text-blue-400">
-                                @{post.author.username}
+                            <Link to={`/profile/${post.author.id}`} className="text-xl font-semibold text-gray-800 hover:text-indigo-600 transition duration-200">
+                                {post.author.first_name} {post.author.last_name}
                             </Link>
+                            <div>
+                                <Link to={`/profile/${post.author.id}`} className="text-gray-500 text-sm hover:text-indigo-400 transition duration-200">
+                                    @{post.author.username}
+                                </Link>
+                                <span className="text-xs text-gray-400 ml-2">• {formatDate(post.created_at)}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <p className="text-xs text-gray-500">{formatDate(post.created_at)}</p>
-                {post.reposted_from ? (
-        <div className="mt-2 p-4 border-l-4 border-blue-400 bg-blue-100 text-gray-800 italic">
-          <blockquote className="pl-4">
-            <strong>
-              Reposted from{' '}
-              <Link 
-                to={`/profile/${post.reposted_from.author.id}`} // Link to the user's profile
-                className="text-blue-600 hover:underline"
-              >
-                @{post.reposted_from.author.username}
-              </Link>:
-            </strong>
-            <p className="quotes">"{post.reposted_from.content}"</p>
-            <span className="text-xs text-gray-500">{formatDate(post.reposted_from.created_at)}</span>
-          </blockquote>
-        </div>
-      ) : (
-        <p className="mt-2 text-gray-800">{post.content}</p>
-      )}
-                {post.image && (
-                    <img src={post.image} alt="Post" className="mt-2 rounded-lg w-full h-auto shadow-md" />
-                )}
 
-                {/* Edit and Delete buttons */}
-                {authState.user?.id === post.author.id && (
-                    <>
-                        <Link 
-                            to={`/edit-post/${post.id}`} 
-                            className="absolute top-2 right-16 text-blue-500 hover:underline"
-                        >
-                            <FontAwesomeIcon icon={faEdit} />
-                        </Link>
-                        <button
-                            onClick={() => deletePost(post.id)}
-                            className="absolute top-2 right-4 text-red-500 hover:underline"
-                        >
-                            <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                    </>
-                )}
+                    {post.reposted_from ? (
+                        <div className="mt-4 p-4 border-l-4 border-indigo-400 bg-indigo-50 rounded-r-lg">
+                            <blockquote className="pl-4">
+                                <strong className="text-gray-700">
+                                    Reposted from{' '}
+                                    <Link 
+                                        to={`/profile/${post.reposted_from.author.id}`}
+                                        className="text-indigo-600 hover:text-indigo-700 hover:underline"
+                                    >
+                                        @{post.reposted_from.author.username}
+                                    </Link>:
+                                </strong>
+                                <p className="mt-2 text-gray-600 italic">"{post.reposted_from.content}"</p>
+                                <span className="text-xs text-gray-400">{formatDate(post.reposted_from.created_at)}</span>
+                            </blockquote>
+                        </div>
+                    ) : (
+                        <p className="mt-4 text-gray-700 text-lg">{post.content}</p>
+                    )}
 
-                {/* Like and Dislike Buttons */}
-                <div className="flex justify-between mt-2">
-                    <div className="flex space-x-2">
-                        {/* Likes Section */}
-                        <motion.div
-                            className="flex flex-col items-center"
-                            whileHover={{ scale: post.dislikes.includes(authState.user?.id) ? 1 : 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="text-sm text-gray-500 mb-1">
-                                {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
-                            </div>
-                            <button
+                    {post.image && (
+                        <img 
+                            src={post.image} 
+                            alt="Post" 
+                            className="mt-4 rounded-lg w-full h-auto shadow-md hover:shadow-lg transition duration-300" 
+                        />
+                    )}
+
+                    {/* Actions Bar */}
+                    <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
+                        <div className="flex space-x-4">
+                            {/* Like Button */}
+                            <motion.button
                                 onClick={() => handleLike(post.id)}
                                 disabled={post.dislikes.includes(authState.user?.id)}
-                                className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.likes.includes(authState.user?.id) ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-blue-600`}
+                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition duration-200 ${
+                                    post.likes.includes(authState.user?.id)
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <FontAwesomeIcon
-                                    icon={faThumbsUp}
-                                    className={`mr-2 ${post.likes.includes(authState.user?.id) ? 'text-white' : 'text-blue-500'}`}
-                                />
-                                {post.likes.includes(authState.user?.id) ? 'Liked' : 'Like'}
-                            </button>
-                        </motion.div>
+                                <FontAwesomeIcon icon={faThumbsUp} />
+                                <span>{post.likes.length}</span>
+                            </motion.button>
 
-                        {/* Dislikes Section */}
-                        <motion.div
-                            className="flex flex-col items-center"
-                            whileHover={{ scale: post.likes.includes(authState.user?.id) ? 1 : 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="text-sm text-gray-500 mb-1">
-                                {post.dislikes.length} {post.dislikes.length === 1 ? 'dislike' : 'dislikes'}
-                            </div>
-                            <button
+                            {/* Dislike Button */}
+                            <motion.button
                                 onClick={() => handleDislike(post.id)}
                                 disabled={post.likes.includes(authState.user?.id)}
-                                className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.dislikes.includes(authState.user?.id) ? 'bg-red-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-red-600`}
+                                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition duration-200 ${
+                                    post.dislikes.includes(authState.user?.id)
+                                        ? 'bg-red-600 text-white'
+                                        : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+                                }`}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <FontAwesomeIcon
-                                    icon={faThumbsDown}
-                                    className={`mr-2 ${post.dislikes.includes(authState.user?.id) ? 'text-white' : 'text-red-500'}`}
-                                />
-                                {post.dislikes.includes(authState.user?.id) ? 'Disliked' : 'Dislike'}
-                            </button>
-                        </motion.div>
-                    </div>
-                    <button
-    onClick={() => handleRepost(post.id)} // Pass the post ID
-    className={`flex items-center space-x-2 p-2 rounded-full 
-        hover:bg-green-50 group transition-colors duration-200 
-        ${repostLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-    title="Repost"
-    disabled={repostLoading} // Disable button if loading
->
-    <Repeat2 
-        className={`w-5 h-5 transition-transform duration-200 
-            text-green-600 group-hover:scale-110`}
-    />
-    <span className={`text-sm group-hover:text-green-600`}>
-        Repost
-    </span>
-</button>
+                                <FontAwesomeIcon icon={faThumbsDown} />
+                                <span>{post.dislikes.length}</span>
+                            </motion.button>
 
+                            {/* Comment Button */}
+                            <motion.button
+                                onClick={() => handleToggleCommentForm(post.id)}
+                                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-700 transition duration-200"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <FontAwesomeIcon icon={faComment} />
+                                <span>{commentsCount[post.id] || 0}</span>
+                            </motion.button>
+                        </div>
+
+                        {/* Repost Button */}
+                        <motion.button
+                            onClick={() => handleRepost(post.id)}
+                            disabled={repostLoading}
+                            className={`flex items-center space-x-2 px-4 py-2 rounded-lg bg-gray-50 hover:bg-green-50 text-gray-700 hover:text-green-600 transition duration-200 ${
+                                repostLoading ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            <Repeat2 className="w-5 h-5" />
+                            <span>Repost</span>
+                        </motion.button>
+                    </div>
+
+                    {/* Author Actions */}
+                    {authState.user?.id === post.author.id && (
+                        <div className="absolute top-4 right-4 flex space-x-2">
+                            <Link 
+                                to={`/edit-post/${post.id}`}
+                                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition duration-200"
+                            >
+                                <FontAwesomeIcon icon={faEdit} />
+                            </Link>
+                            <button
+                                onClick={() => deletePost(post.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-full transition duration-200"
+                            >
+                                <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                        </div>
+                    )}
 
                     {/* Comments Section */}
-                    <div className="mt-6">
-                        <button
-                            onClick={() => handleToggleCommentForm(post.id)}
-                            className="flex items-center px-4 py-2 rounded-md text-sm transition duration-300 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-600"
-                        >
-                            <FontAwesomeIcon icon={faComment} className="mr-2 text-blue-500" />
-                            Comment <span className="text-sm text-gray-500 mb-0 ml-2">({commentsCount[post.id] || 0})</span>
-                        </button>
-                    </div>
-                </div>
-
-                {/* Comment Form */}
-                {showCommentForm[post.id] && (
-                    <CommentSection postId={post.id} />
-                )}
-            </motion.div>
-        ))}
+                    {showCommentForm[post.id] && (
+                        <div className="mt-6 pt-4 border-t border-gray-100">
+                            <CommentSection postId={post.id} />
+                        </div>
+                    )}
+                </motion.div>
+            ))}
+        </motion.div>
     </motion.div>
-
-    {/* Success and Error Messages */}
-    {success && (
-        <div className="text-green-500 text-center mt-4">
-            {success}
-        </div>
-    )}
-    {error && (
-        <div className="text-red-500 text-center mt-4">
-            {error}
-        </div>
-    )}
-</motion.div>
 
     );
 };
