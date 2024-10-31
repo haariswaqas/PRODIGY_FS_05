@@ -56,10 +56,8 @@ const NavBar = () => {
                             <FontAwesomeIcon icon={faPen} className="mr-1" />
                             View Posts
                         </Link>
-                        <Link to="/notifications" className="hover:text-gray-200 flex items-center">
-                            <FontAwesomeIcon icon={faBell} className="mr-1" />
-                            Notifications
-                        </Link>
+
+                        
                         {authState.isAuthenticated && (
                             <>
                                 <button onClick={handleProfileClick} className="hover:text-gray-200 flex items-center">

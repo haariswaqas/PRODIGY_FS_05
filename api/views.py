@@ -67,13 +67,6 @@ class ProfileEditView(generics.UpdateAPIView):
 
     
     
-    
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from django.shortcuts import get_object_or_404
-from .models import User  # Make sure to import your User model
 
 class FollowUnfollowUserView(APIView):
     permission_classes = [IsAuthenticated]  # Only authenticated users can follow/unfollow
@@ -170,102 +163,44 @@ class PostCreateView(generics.CreateAPIView):
         # Set the author of the post to the current logged-in user
         serializer.save(author=self.request.user)
 
-from rest_framework import generics, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from .models import Post
+        
 
-"""
+
+
 class RepostCreateView(generics.CreateAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        # Retrieve the post_id from the request data
         post_id = self.request.data.get('post_id')
+
         if not post_id:
             return Response({"error": "post_id is required."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Retrieve the original post
         original_post = get_object_or_404(Post, id=post_id)
 
+        # Check if the user has already reposted this post
+        if Post.objects.filter(author=self.request.user, reposted_from=original_post).exists():
+            return Response({"error": "You have already reposted this post."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Get the content for the repost
+        repost_content = f"Reposted by {self.request.user.username}: {original_post.author.username}: {original_post.content}"
+
+        # Create the repost instance
         repost = serializer.save(
             author=self.request.user,
             reposted_from=original_post,
-            content=original_post.content,  # Copy the original content
+            content=repost_content,  # Set the content to the new format
             image=original_post.image  # Copy the original image
         )
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-
-
-
-        
-"""
-
-from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.db import models
-from .models import Post
-from .serializers import PostSerializer
-from rest_framework.exceptions import PermissionDenied
-
-class RepostCreateView1(generics.CreateAPIView):
-    serializer_class = PostSerializer  # Use the RepostSerializer here
-    permission_classes = [IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        # Get the original post
-        original_post_id = request.data.get('original_post_id')
-        if not original_post_id:
-            return Response(
-                {"error": "original_post_id is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Validate the original post
-        original_post = get_object_or_404(Post, id=original_post_id)
-
-        # Create the repost
-        repost_data = {
-            'original_post_id': original_post.id,
-           
-            'is_public': True  # You might want to allow users to control this
-        }
-
-        serializer = self.get_serializer(data=repost_data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        # Serialize the repost instance to return the full post data
+        serializer = self.get_serializer(repost)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def perform_create(self, serializer):
-        # Save the post, which will now include the author set in the serializer
-        serializer.save(author=self.request.user)
-        
-        
-class RepostCreateView(generics.CreateAPIView):
-    serializer_class = PostSerializer
-    permission_classes = [IsAuthenticated]
-
-    def perform_create(self, serializer):
-        post_id = self.request.data.get('post_id')
-        if not post_id:
-            return Response({"error": "post_id is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        original_post = get_object_or_404(Post, id=post_id)
-
-        repost = serializer.save(
-            author=self.request.user,
-            reposted_from=original_post,
-            content=original_post.content,  # Copy the original content
-            image=original_post.image  # Copy the original image
-        )
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, ThumbsUp, Send, AlertCircle, Reply } from 'lucide-react';
 import {motion, AnimatePresence} from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const SubCommentSection = ({ commentId, userId }) => {
     const [subComments, setSubComments] = useState([]);
@@ -137,13 +138,13 @@ const SubCommentSection = ({ commentId, userId }) => {
                 initial={{ opacity: 0, y: -20 }} 
                 animate={{ opacity: 1, y: 0 }} 
                 transition={{ duration: 0.3 }} 
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 transition-all duration-200 hover:shadow-md"
+                className="bg-gray-50 rounded-lg shadow-md border border-gray-300 p-4 transition-all duration-200 hover:shadow-lg"
             >
                 <form onSubmit={handleSubCommentSubmit} className="space-y-3">
                     <textarea
                         value={subComment}
                         onChange={(e) => setSubComment(e.target.value)}
-                        className="w-full p-3 border border-gray-200 rounded-lg resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        className="w-full p-3 border border-gray-300 rounded-lg resize-none transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-300 outline-none"
                         placeholder="Write your reply here..."
                         rows="2"
                     />
@@ -153,10 +154,10 @@ const SubCommentSection = ({ commentId, userId }) => {
                             disabled={isSubmitting}
                             whileHover={{ scale: 1.05 }} 
                             whileTap={{ scale: 0.95 }} 
-                            className="inline-flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:bg-blue-600 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             <Reply className="h-4 w-4" />
-                            {isSubmitting ? 'Sending...' : ''}
+                            {isSubmitting ? 'Sending...' : 'Reply'}
                         </motion.button>
                     </div>
                 </form>
@@ -172,14 +173,14 @@ const SubCommentSection = ({ commentId, userId }) => {
                             animate={{ opacity: 1, y: 0 }} 
                             exit={{ opacity: 0, y: -20 }} 
                             transition={{ duration: 0.3 }} 
-                            className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 transition-all duration-200 hover:shadow-md animate-in fade-in slide-in-from-bottom-2"
+                            className="bg-gray-100 p-4 rounded-lg shadow-md border border-gray-300 transition-all duration-200 max-w-xl* hover:shadow-lg"
                         >
                             <div className="flex items-start gap-3">
                                 {sub.author?.profile_picture ? (
                                     <img
                                         src={sub.author.profile_picture}
                                         alt="Profile"
-                                        className="h-8 w-8 rounded-full object-cover ring-2 ring-gray-100"
+                                        className="h-8 w-8 rounded-full object-cover ring-2 ring-gray-200"
                                     />
                                 ) : (
                                     <User size={24} className="text-gray-400" /> 
@@ -187,13 +188,15 @@ const SubCommentSection = ({ commentId, userId }) => {
                                 <div className="flex-grow">
                                     <div className="flex items-center justify-between">
                                         <span className="font-medium text-gray-900">
-                                            {sub.author ? sub.author.username : 'Unknown User'}
+                                        <Link to={`/profile/${sub.author.id}`} className="font-semibold text-gray-900 hover:text-blue-400">
+                                {sub.author.username}
+                            </Link>
                                         </span>
-                                        <span className="text-gray-500 text-sm">
+                                        <span className="text-gray-600 text-sm">
                                             {new Date(sub.created_at).toLocaleString()}
                                         </span>
                                     </div>
-                                    <p className="text-gray-700 mt-1">{sub.content}</p>
+                                    <p className="text-gray-800 mt-1">{sub.content}</p>
                                     <div className="mt-3">
                                         <motion.button
                                             onClick={() => handleLike(sub.id)}
@@ -207,11 +210,11 @@ const SubCommentSection = ({ commentId, userId }) => {
                                             <ThumbsUp 
                                                 className={`h-4 w-4 transition-all duration-200 ${
                                                     sub.is_liked_by_user 
-                                                        ? 'fill-blue-500 text-blue-500 scale-110' 
+                                                        ? 'fill-blue-600 text-blue-600 scale-110' 
                                                         : 'text-gray-400'
                                                 }`} 
                                             />
-                                            <span className={`${sub.is_liked_by_user ? 'text-blue-500' : 'text-gray-500'}`}>
+                                            <span className={`${sub.is_liked_by_user ? 'text-blue-600' : 'text-gray-500'}`}>
                                                 {sub.like_count || 0}
                                             </span>
                                         </motion.button>
@@ -224,6 +227,7 @@ const SubCommentSection = ({ commentId, userId }) => {
             </div>
         </div>
     </div>
+    
     
     
     );

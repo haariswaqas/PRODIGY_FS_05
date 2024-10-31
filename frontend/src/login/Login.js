@@ -24,7 +24,7 @@ const Login = () => {
       if (response.ok) {
         const data = await response.json();
         login(data.access);
-        navigate('/');
+        navigate('/feed');
       } else {
         alert('Login failed. Please check your credentials.');
       }

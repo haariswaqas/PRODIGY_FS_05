@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import formatDate from '../formatting/FormatDate';
 import SubCommentSection from './SubCommentSection';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 
 const CommentSection = ({ postId }) => {
@@ -179,22 +180,22 @@ const CommentSection = ({ postId }) => {
     );
 
     return (
-        <div className="comment-form space-y-6 p-6 bg-gray-50 rounded-xl">
+        <div className="comment-form space-y-6 p-6 bg-gray-100 rounded-xl">
         <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl shadow-sm p-6"
+            className="bg-white rounded-xl shadow-lg p-6 border border-gray-300"
         >
             <div className="flex items-center mb-4">
-                <MessageSquare className="w-6 h-6 text-blue-500 mr-2" />
-                <h2 className="text-2xl font-bold text-gray-800">Join The Discussion</h2>
+                <MessageSquare className="w-6 h-6 text-blue-600 mr-2" />
+                <h2 className="text-2xl font-bold text-gray-900">Join The Discussion</h2>
             </div>
             <form onSubmit={(e) => createOrEditComment(e)} className="space-y-4">
                 <div className="relative">
                     <textarea
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
-                        className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none bg-gray-50 focus:bg-white"
+                        className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-200 resize-none bg-gray-50 focus:bg-white"
                         placeholder="Share your thoughts..."
                         rows="4"
                     />
@@ -202,7 +203,7 @@ const CommentSection = ({ postId }) => {
                         type="submit"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className="absolute bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full hover:bg-blue-600 transition-colors duration-200 flex items-center justify-center shadow-lg"
+                        className="absolute bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center shadow-lg"
                     >
                         <Send className="w-5 h-5" />
                     </motion.button>
@@ -212,7 +213,7 @@ const CommentSection = ({ postId }) => {
                 <motion.p 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 mt-2 flex items-center"
+                    className="text-red-600 mt-2 flex items-center"
                 >
                     <X className="w-4 h-4 mr-1" /> {error}
                 </motion.p>
@@ -221,8 +222,8 @@ const CommentSection = ({ postId }) => {
     
         <div className="space-y-2">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-                    <MessageSquare className="w-5 h-5 mr-2 text-blue-500" />
+                <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                    <MessageSquare className="w-5 h-5 mr-2 text-blue-600" />
                     Comments ({comments.length})
                 </h3>
             </div>
@@ -237,7 +238,7 @@ const CommentSection = ({ postId }) => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.3, delay: index * 0.1 }}
-                            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-all duration-200"
+                            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-200 border border-gray-200"
                         >
                             <div className="flex items-start gap-4">
                                 {comment.author?.profile_picture ? (
@@ -245,18 +246,22 @@ const CommentSection = ({ postId }) => {
                                         whileHover={{ scale: 1.1 }}
                                         src={comment.author.profile_picture} 
                                         alt="Profile" 
-                                        className="h-10 w-10 rounded-full ring-2 ring-gray-100"
+                                        className="h-10 w-10 rounded-full ring-2 ring-gray-200"
                                     />
                                 ) : (
-                                    <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center ring-2 ring-gray-100">
-                                        <User size={24} className="text-gray-400" /> {/* Use a nice avatar icon */}
+                                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center ring-2 ring-gray-200">
+                                        <User size={24} className="text-gray-500" /> {/* Use a nice avatar icon */}
                                     </div>
                                 )}
                                 <div className="flex-grow space-y-2">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <p className="font-semibold text-gray-800">{comment.author.username}</p>
-                                            <p className="text-gray-500 text-sm">{formatDate(comment.created_at)}</p>
+
+                                        <Link to={`/profile/${comment.author.id}`} className="font-semibold text-gray-900 hover:text-blue-400">
+                                {comment.author.username}
+                            </Link>
+                                            
+                                            <p className="text-gray-600 text-sm">{formatDate(comment.created_at)}</p>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <motion.button 
@@ -266,8 +271,8 @@ const CommentSection = ({ postId }) => {
                                                 disabled={pendingLikes.has(comment.id)}
                                                 className={`flex items-center gap-1 px-3 py-1 rounded-full ${
                                                     comment.is_liked_by_user 
-                                                    ? 'bg-blue-50 text-blue-500' 
-                                                    : 'bg-gray-50 text-gray-600'
+                                                    ? 'bg-blue-100 text-blue-600' 
+                                                    : 'bg-gray-100 text-gray-700'
                                                 } transition-colors duration-200`}
                                             >
                                                 <FaThumbsUp className={`w-4 h-4 ${comment.is_liked_by_user ? 'fill-current' : ''}`} />
@@ -278,7 +283,7 @@ const CommentSection = ({ postId }) => {
                                                 whileHover={{ scale: 1.1 }}
                                                 whileTap={{ scale: 0.9 }}
                                                 onClick={() => handleReplyClick(comment.id)}
-                                                className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-500 transition-colors duration-200"
+                                                className="flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
                                             >
                                                 <Reply className="w-4 h-4" />
                                                 <span>Reply</span>
@@ -289,7 +294,7 @@ const CommentSection = ({ postId }) => {
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.9 }}
                                                         onClick={() => handleEdit(comment.id, comment.content)}
-                                                        className="p-2 rounded-full bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-500 transition-colors duration-200"
+                                                        className="p-2 rounded-full bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600 transition-colors duration-200"
                                                     >
                                                         <Pen className="w-4 h-4" />
                                                     </motion.button>
@@ -297,7 +302,7 @@ const CommentSection = ({ postId }) => {
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.9 }}
                                                         onClick={() => handleDeleteComment(comment.id)}
-                                                        className="p-2 rounded-full bg-gray-50 text-gray-600 hover:bg-red-50 hover:text-red-500 transition-colors duration-200"
+                                                        className="p-2 rounded-full bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-600 transition-colors duration-200"
                                                     >
                                                         <Trash2 className="w-4 h-4" />
                                                     </motion.button>
@@ -316,7 +321,7 @@ const CommentSection = ({ postId }) => {
                                             <textarea
                                                 value={editingCommentContent}
                                                 onChange={(e) => setEditingCommentContent(e.target.value)}
-                                                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all duration-200"
                                                 placeholder="Edit your comment..."
                                                 rows="3"
                                             />
@@ -325,7 +330,7 @@ const CommentSection = ({ postId }) => {
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
                                                     type="submit" 
-                                                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                                                 >
                                                     <Save className="w-4 h-4" />
                                                     Save
@@ -335,7 +340,7 @@ const CommentSection = ({ postId }) => {
                                                     whileTap={{ scale: 0.95 }}
                                                     type="button"
                                                     onClick={() => setEditingCommentId(null)}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors duration-200"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
                                                 >
                                                     <X className="w-4 h-4" />
                                                     Cancel
@@ -346,7 +351,7 @@ const CommentSection = ({ postId }) => {
                                         <motion.p 
                                             initial={{ opacity: 0 }}
                                             animate={{ opacity: 1 }}
-                                            className="text-gray-700 leading-relaxed"
+                                            className="text-gray-800 leading-relaxed"
                                         >
                                             {comment.content}
                                         </motion.p>
@@ -360,7 +365,7 @@ const CommentSection = ({ postId }) => {
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="mt-4 pl-12 border-l-2 border-gray-100"
+                                        className="mt-4 border-l-2 border-gray-200"
                                     >
                                         <SubCommentSection commentId={comment.id} />
                                     </motion.div>
@@ -372,6 +377,7 @@ const CommentSection = ({ postId }) => {
             </AnimatePresence>
         </div>
     </div>
+    
     
     );
 };

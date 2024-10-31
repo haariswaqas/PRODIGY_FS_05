@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { Repeat2 } from 'lucide-react';
 
-const Repost = ({ postId, reposted_from, onRepostSuccess, repostCount = 0, isReposted = false }) => {
+const Repost = ({ postId, reposted_from, originalPostContent, onRepostSuccess, repostCount = 0, isReposted = false }) => {
     const { authState } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -14,7 +14,7 @@ const Repost = ({ postId, reposted_from, onRepostSuccess, repostCount = 0, isRep
         e.stopPropagation();
         setLoading(true);
         setError(null);
-        
+
         try {
             if (!authState.isAuthenticated) {
                 throw new Error('You must be logged in to repost.');
@@ -31,22 +31,28 @@ const Repost = ({ postId, reposted_from, onRepostSuccess, repostCount = 0, isRep
             );
 
             if (response.status === 201) {
-                setIsRepostedState(!isRepostedState);
-                setRepostCountState(prev => isRepostedState ? prev - 1 : prev + 1);
+                setIsRepostedState(true); // Explicitly set to true after successful repost
+                setRepostCountState(repostCountState + 1);
                 if (onRepostSuccess) {
                     onRepostSuccess(response.data);
                 }
             }
         } catch (err) {
             setError(err.response?.data?.detail || 'An error occurred while reposting.');
-            setTimeout(() => setError(null), 3000); // Clear error after 3 seconds
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="flex items-center group">
+        <div className="flex flex-col items-start group">
+            {reposted_from && (
+                <div className="text-xs text-gray-500 mb-2">
+                    <span>
+                        Reposted by <strong>{authState.user.username}</strong> 
+                    </span>
+                </div>
+            )}
             {reposted_from && (
                 <div className="text-xs text-gray-500 flex items-center mb-2">
                     <div className="flex items-center mb-2">
@@ -66,6 +72,10 @@ const Repost = ({ postId, reposted_from, onRepostSuccess, repostCount = 0, isRep
                     </div>
                 </div>
             )}
+            {/* Display the original post content */}
+            <div className="mt-2 text-sm text-gray-800">
+                {originalPostContent}
+            </div>
             <button
                 onClick={handleRepost}
                 disabled={loading}

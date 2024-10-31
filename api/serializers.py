@@ -151,24 +151,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-#class PostSerializer(serializers.ModelSerializer):
-#    author = UserSerializer(read_only=True)  # To display the author's username
-#    class Meta:
-#        model = Post
-#        fields = ['id', 'author', 'content', 'image', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public', 'reposted_from']
 
-#    def create(self, validated_data):
-#        return super().create(validated_data)
-#class RepostSerializer(serializers.ModelSerializer):
-#    reposted_from = serializers.PrimaryKeyRelatedField(read_only=True)  # Read-only field for reposted post
-
- #   class Meta:
- #       model = Post
- #       fields = '__all__'
-  
-  
-
-# Assuming you have a UserSerializer to serialize user details
 class RepostedFromSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)  # Serialize original author details
 
@@ -180,29 +163,31 @@ class RepostedFromSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)  # To display the author's username
     reposted_from = RepostedFromSerializer(read_only=True)  # Serialize reposted_from details
+    reposted_by = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'content', 'image', 'created_at', 'updated_at', 'likes', 'dislikes', 'is_public', 'reposted_from']
+        fields = ['id', 'author', 'content', 'image', 'created_at', 'updated_at', 
+                  'likes', 'dislikes', 'is_public', 'reposted_from', 'reposted_by']
 
     def create(self, validated_data):
-        return super().create(validated_data)
-  
- 
- 
+    # Extract reposted_from if present to handle repost logic
+        reposted_from_instance = validated_data.pop('reposted_from', None)
+
+    # Create the post instance
+        post = super().create(validated_data)
+
+    # If this is a repost, link it to the original post
+        if reposted_from_instance:
+            post.reposted_from = reposted_from_instance  # Set the original post instance
+            post.reposted_by = validated_data['author']  # Set the reposted_by to the current user
+            post.content = reposted_from_instance.content  # Copy the content from the original post
+            post.image = reposted_from_instance.image  # Copy the image from the original post (if any)
+            post.save()
+
+        return post
      
   
-  
-  
-  
-  
-
-  
-    
-from rest_framework import serializers
-from .models import Comment
-from .serializers import UserSerializer
-
 class CommentSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     is_liked_by_user = serializers.SerializerMethodField()

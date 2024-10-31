@@ -17,6 +17,7 @@ const Post = () => {
     const [isPublic, setIsPublic] = useState(true);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [shouldRemoveImage, setShouldRemoveImage] = useState(false);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -51,36 +52,68 @@ const Post = () => {
 
         const formData = new FormData();
         formData.append('content', content);
+        formData.append('is_public', isPublic);
+
+        // Handle image cases
         if (image) {
             formData.append('image', image);
+        } else if (shouldRemoveImage) {
+            // If we're editing and want to remove the image
+            formData.append('image', ''); // Send empty string to clear the image
         }
-        formData.append('is_public', isPublic);
 
         try {
             const apiUrl = id ? `http://127.0.0.1:8000/api/posts/${id}/` : 'http://127.0.0.1:8000/api/posts/create/';
-            const method = id ? 'put' : 'post';
-
-            const response = await axios({
-                method: method,
-                url: apiUrl,
-                data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${authState.token}`,
-                },
-            });
+            
+            let response;
+            if (id) {
+                // For editing, explicitly send the DELETE request first if removing image
+                if (shouldRemoveImage && existingImage) {
+                    try {
+                        await axios.delete(`http://127.0.0.1:8000/api/posts/${id}/remove_image/`, {
+                            headers: {
+                                'Authorization': `Bearer ${authState.token}`,
+                            },
+                        });
+                    } catch (err) {
+                        console.error('Failed to remove image:', err);
+                    }
+                }
+                
+                // Then update the post
+                response = await axios.put(apiUrl, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${authState.token}`,
+                    },
+                });
+            } else {
+                // For new posts, just send the create request
+                response = await axios.post(apiUrl, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${authState.token}`,
+                    },
+                });
+            }
 
             setSuccess(id ? 'Post updated successfully!' : 'Post created successfully!');
+            
+            // Reset all states
             setContent('');
             setImage(null);
             setImagePreview(null);
+            setExistingImage(null);
+            setShouldRemoveImage(false);
             setIsPublic(true);
             setError(null);
 
+            // Navigate after a short delay
             setTimeout(() => {
                 navigate('/posts');
             }, 2000);
         } catch (err) {
+            console.error('Error:', err);
             setError(`Failed to ${id ? 'update' : 'create'} post. Please try again.`);
             setSuccess(null);
         }
@@ -91,6 +124,18 @@ const Post = () => {
         if (file) {
             setImage(file);
             setImagePreview(URL.createObjectURL(file));
+            setExistingImage(null);
+            setShouldRemoveImage(false);
+        }
+    };
+
+    const removeImage = () => {
+        setImage(null);
+        setImagePreview(null);
+        setShouldRemoveImage(true);
+        setExistingImage(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
@@ -99,6 +144,9 @@ const Post = () => {
             if (imagePreview) URL.revokeObjectURL(imagePreview);
         };
     }, [imagePreview]);
+
+    // Only show image if we have a new or existing image and we're not removing it
+    const shouldShowImage = (imagePreview || existingImage) && !shouldRemoveImage;
 
     return (
         <motion.div
@@ -128,6 +176,7 @@ const Post = () => {
                             ref={fileInputRef}
                             onChange={handleImageChange}
                             className="hidden"
+                            accept="image/*"
                         />
                         <motion.button
                             type="button"
@@ -138,42 +187,49 @@ const Post = () => {
                             transition={{ duration: 0.3 }}
                         >
                             <AiOutlineCamera size={24} className="mr-2 text-white" />
-                            {existingImage || image ? 'Change Image' : 'Add Image'}
+                            {shouldShowImage ? 'Change Image' : 'Add Image'}
                         </motion.button>
 
-                        {(imagePreview || existingImage) && (
-                            <div className="mt-6">
+                        {shouldShowImage && (
+                            <div className="mt-6 relative">
                                 <img
                                     src={imagePreview || existingImage}
                                     alt="Preview"
                                     className="w-full h-48 object-cover rounded-lg"
                                 />
+                                <button
+                                    type="button"
+                                    onClick={removeImage}
+                                    className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded"
+                                >
+                                    Remove Image
+                                </button>
                             </div>
                         )}
                     </div>
 
                     <div className="flex items-center space-x-2">
-            <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                className="mr-2"
-            />
-            <label className="text-sm text-gray-300">
-                {isPublic ? 'Public' : 'Private (Only you can see)'}
-            </label>
-        </div>
+                        <input
+                            type="checkbox"
+                            checked={isPublic}
+                            onChange={(e) => setIsPublic(e.target.checked)}
+                            className="mr-2"
+                        />
+                        <label className="text-sm text-gray-300">
+                            {isPublic ? 'Public' : 'Private (Only you can see)'}
+                        </label>
+                    </div>
 
                     <motion.button
-  type="submit"
-  className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 w-full flex justify-center items-center"
-  whileHover={{ scale: 1.05 }}
-  whileTap={{ scale: 0.95 }}
-  transition={{ duration: 0.3 }}
->
-  <MdSend size={24} className="mr-2" />
-  {id ? 'Update Post' : 'Create Post'}
-</motion.button>
+                        type="submit"
+                        className="bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300 w-full flex justify-center items-center"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <MdSend size={24} className="mr-2" />
+                        {id ? 'Update Post' : 'Create Post'}
+                    </motion.button>
                 </form>
 
                 {error && (

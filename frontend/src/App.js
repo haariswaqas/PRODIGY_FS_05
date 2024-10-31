@@ -10,13 +10,13 @@ import ProfileList from './profile/ProfileList';
 import NavBar from './navbar/NavBar';
 import Post from './posts/Post';
 import PostsList from './posts/PostsList';
-
-
 import CompactPostForm from './posts/CompactPostForm';
-
-import './App.css';
 import EditProfile from './profile/EditProfile';
 import FollowersList from './followers/FollowersList';
+import PrivateRoute from './routes/PrivateRoute';
+import RestrictedRoute from './routes/RestrictedRoute';
+
+import './App.css';
 
 const App = () => {
     return (
@@ -27,26 +27,98 @@ const App = () => {
                 <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<Home />} />
-                    <Route path="/feed" element={<Feed />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
                     
-                    {/* Profile Route with dynamic ID */}
-                    <Route path="/profile/:id/" element={<Profile />} />
-                    <Route path="/edit-profile/:id/" element={<EditProfile />} />
-                    <Route path="/profiles" element={<ProfileList />} />
-
-                    <Route path="/username:/followers" element={<FollowersList />} />
-
-                    {/* Posts and Post Creation Routes */}
-                    <Route path="/create_post" element={<Post />} />
-                    <Route path="/edit-post/:id/" element={<Post />} />
-                    <Route path="/compact_post" element={<CompactPostForm />} />
-
-                    <Route path="/posts" element={<PostsList />} />
-                
-
-                   
+                    {/* Restricted Routes */}
+                    <Route 
+                        path="/login" 
+                        element={
+                            <RestrictedRoute>
+                                <Login />
+                            </RestrictedRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/register" 
+                        element={
+                            <RestrictedRoute>
+                                <Register />
+                            </RestrictedRoute>
+                        } 
+                    />
+                    
+                    {/* Private Routes */}
+                    <Route 
+                        path="/feed" 
+                        element={
+                            <PrivateRoute>
+                                <Feed />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/profile/:id/" 
+                        element={
+                            <PrivateRoute>
+                                <Profile />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/edit-profile/:id/" 
+                        element={
+                            <PrivateRoute>
+                                <EditProfile />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/profiles" 
+                        element={
+                            <PrivateRoute>
+                                <ProfileList />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/:username/followers" 
+                        element={
+                            <PrivateRoute>
+                                <FollowersList />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/create_post" 
+                        element={
+                            <PrivateRoute>
+                                <Post />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/edit-post/:id/" 
+                        element={
+                            <PrivateRoute>
+                                <Post />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/compact_post" 
+                        element={
+                            <PrivateRoute>
+                                <CompactPostForm />
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/posts" 
+                        element={
+                            <PrivateRoute>
+                                <PostsList />
+                            </PrivateRoute>
+                        } 
+                    />
                 </Routes>
             </Router>
         </AuthProvider>

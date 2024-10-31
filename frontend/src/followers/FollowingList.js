@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const FollowingList = ({ profile }) => {
   const [following, setFollowing] = useState([]);
@@ -60,7 +61,12 @@ const FollowingList = ({ profile }) => {
                 alt={`${user.username}'s profile`}
                 className="w-10 h-10 rounded-full mr-3"
               />
-              <span className="text-gray-700">{user.username}</span>
+              <Link 
+                to={`/profile/${user.id}`} // Assuming `user.id` is the unique identifier
+                className="text-gray-700 hover:text-blue-600"
+              >
+                {user.username}
+              </Link>
             </motion.li>
           ))
         ) : (

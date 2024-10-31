@@ -49,6 +49,7 @@ class Post(models.Model):
     dislikes = models.ManyToManyField(User, related_name='unliked_post', blank=True)
     is_public = models.BooleanField(default=True)  # Visibility flag (public or private post)
     reposted_from = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='reposts')  # Link to the original post
+    reposted_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='reposted_posts')
 
     # Repost related fields
    

@@ -45,7 +45,7 @@ const Home = () => {
                 ) : (
                     <button
                         onClick={handleLogout}
-                        className="flex items-center justify-center bg-red-500 text-white text-lg font-semibold py-2 rounded-md shadow hover:bg-red-600 transition duration-300"
+                        className="flex items-center justify-center bg-red-500 text-white text-lg font-semibold py-2 px-3 rounded-md shadow hover:bg-red-600 transition duration-300"
                     >
                         <FaSignOutAlt className="mr-2" />
                         Logout

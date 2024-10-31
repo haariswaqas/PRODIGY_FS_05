@@ -1,27 +1,29 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useParams, Link } from 'react-router-dom';
-import { FaUserCircle, FaEdit, FaCheckCircle, FaThumbsDown, FaThumbsUp, FaComment } from 'react-icons/fa';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import { User, Edit, CheckCircle, MapPin, Phone, Mail, ThumbsUp, ThumbsDown, MessageCircle, Users, UserPlus, Calendar, Globe, Award, Camera} from 'lucide-react';
+import { User, Edit, CheckCircle, MapPin, Phone, Mail, UserPlus, Camera} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Repeat2 } from 'lucide-react';
 import formatDate from '../formatting/FormatDate';
-import { faThumbsUp, faThumbsDown, faComment, faEdit } from '@fortawesome/free-solid-svg-icons';
-
-
+import { faThumbsUp, faTrash, faThumbsDown, faComment, faEdit } from '@fortawesome/free-solid-svg-icons';
 import FollowersList from '../followers/FollowersList';
 import FollowingList from '../followers/FollowingList';
 import CommentSection from '../comments/CommentSection';
+import axios from 'axios';
 
 const Profile = () => {
   const { authState } = useAuth();
   const { id } = useParams();
-
+  const navigate = useNavigate();
+  const [success, setSuccess] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const userId = authState.user?.id;
+
+  const [repostError, setRepostError] = useState(null);
+  const [repostLoading, setRepostLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [showFollowers, setShowFollowers] = useState(false);
@@ -29,6 +31,7 @@ const Profile = () => {
   const [followingCount, setFollowingCount] = useState(0);
   const [commentsCount, setCommentsCount] = useState({});
   const [posts, setPosts] = useState([]); // State to hold posts
+
   
   const [showCommentForm, setShowCommentForm] = useState({});
 
@@ -203,7 +206,67 @@ const handleDislike = async (postId) => {
         setError(error.message);
     }
 };
+const deletePost = async (postId) => {
+  // Confirmation dialog
+  const confirmDelete = window.confirm('Are you sure you want to delete this post?');
+  if (!confirmDelete) return; // Exit the function if the user cancels
 
+  try {
+      const apiUrl = `http://127.0.0.1:8000/api/posts/${postId}/`; 
+
+      await axios.delete(apiUrl, {
+          headers: {
+              'Authorization': `Bearer ${authState.token}`,
+          },
+      });
+
+      setSuccess('Post deleted successfully!');
+      setPosts(posts.filter(post => post.id !== postId)); // Update the state to remove the deleted post
+
+      setTimeout(() => {
+          // Navigate back to the user's profile after deletion
+          navigate(`/profile/${id}`); // Adjust the path as needed
+      }, 2000);
+  } catch (err) {
+      setError('Failed to delete the post. Please try again.');
+      setSuccess(null);
+  }
+};
+
+
+const formVariants = {
+  initial: { opacity: 0, y: -20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
+
+const handleRepost = async (postId) => {
+  setRepostLoading(true);
+  setRepostError(null);
+
+  try {
+      const response = await axios.post(
+          'http://127.0.0.1:8000/api/posts/repost/',
+          { post_id: postId },
+          {
+              headers: {
+                  Authorization: `Bearer ${authState.token}`
+              }
+          }
+      );
+
+      // Add the new repost to the post list
+      setPosts((prevPosts) => [response.data, ...prevPosts]);
+  } catch (err) {
+      setRepostError(
+          err.response && err.response.data.error
+              ? err.response.data.error
+              : "An error occurred while reposting."
+      );
+  } finally {
+      setRepostLoading(false);
+  }
+};
 
 const handleToggleCommentForm = (postId) => {
   setShowCommentForm((prevState) => ({
@@ -465,161 +528,179 @@ return (
 
       {/* Posts Section */}
       <motion.div
-        variants={cardVariants}
-        className="mt-8 bg-white rounded-xl p-6 shadow-sm"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Posts</h2>
-          <div className="text-sm text-gray-500">
-            {posts.length} {posts.length === 1 ? 'post' : 'posts'}
-          </div>
-        </div>
+    className="max-w-4xl mx-auto p-4 bg-blue-50 min-h-screen"
+    initial="initial"
+    animate="animate"
+    variants={formVariants}
+>
+    <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">Your Posts</h2>
+    <motion.div className="space-y-4">
+        {posts.map((post) => (
+            <motion.div
+                key={post.id}
+                className="bg-white p-4 rounded-lg shadow-md transition duration-300 hover:shadow-lg relative"
+                whileTap={{ scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+            >
+                <div className="flex items-center mb-2">
+                    <div className="flex-shrink-0">
+                        {post.author.profile_picture ? (
+                            <img 
+                                src={post.author.profile_picture} 
+                                alt="Profile" 
+                                className="h-10 w-10 rounded-full mr-2 border border-gray-200" 
+                            />
+                        ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center border border-gray-200">
+                                <User size={24} className="text-gray-400" /> 
+                            </div>
+                        )}
+                    </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {posts.length > 0 ? (
-              posts.map(post => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="flex items-start space-x-3 mb-4">
-                    {profile?.profile_picture ? (
-                      <img
-                        src={profile.profile_picture}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <User size={20} className="text-gray-500" />
-                      </div>
-                    )}
                     <div>
-                      <h3 className="font-semibold text-gray-800">{post.title}</h3>
-                      <div className="text-sm text-gray-500">
-                        {formatDate(post.created_at)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-700 mb-4 leading-relaxed">{post.content}</p>
-
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                    <div className="flex items-center space-x-6">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleLike(post.id)}
-                        className="flex items-center space-x-2 group"
-                      >
-                        <ThumbsUp
-                          size={18}
-                          className={`transition-colors ${
-                            post.likes.includes(authState.user?.id)
-                              ? 'text-blue-500'
-                              : 'text-gray-400 group-hover:text-blue-500'
-                          }`}
-                        />
-                        <span className={`text-sm ${
-                          post.likes.includes(authState.user?.id)
-                            ? 'text-blue-500'
-                            : 'text-gray-500'
-                        }`}>
-                          {post.likes.length}
-                        </span>
-                      </motion.button>
-
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleDislike(post.id)}
-                        className="flex items-center space-x-2 group"
-                      >
-                        <ThumbsDown
-                          size={18}
-                          className={`transition-colors ${
-                            post.dislikes.includes(authState.user?.id)
-                              ? 'text-red-500'
-                              : 'text-gray-400 group-hover:text-red-500'
-                          }`}
-                        />
-                        <span className={`text-sm ${
-                          post.dislikes.includes(authState.user?.id)
-                            ? 'text-red-500'
-                            : 'text-gray-500'
-                        }`}>
-                          {post.dislikes.length}
-                        </span>
-                      </motion.button>
-
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleToggleCommentForm(post.id)}
-                        className="flex items-center space-x-2 group"
-                      >
-                        <MessageCircle
-                          size={18}
-                          className="text-gray-400 group-hover:text-gray-600"
-                        />
-                        <span className="text-sm text-gray-500">
-                          {commentsCount[post.id] || 0}
-                        </span>
-                      </motion.button>
-                    </div>
-
-                    {profile?.id === authState.user?.id && (
-                  
-                        <Link 
-                                to={`/edit-post/${post.id}`} 
-                                className="absolute top-4 right-12 text-yellow-500 hover:text-yellow-600"
-                            >
-                                <FontAwesomeIcon icon={faEdit} size="lg" />
+                        <Link to={`/profile/${post.author.id}`} className="text-xl font-semibold hover:text-blue-600">
+                            {post.author.first_name} {post.author.last_name}
+                        </Link>
+                        <div>
+                            <Link to={`/profile/${post.author.id}`} className="text-gray-500 text-sm hover:text-blue-400">
+                                @{post.author.username}
                             </Link>
-                   
-                    )}
-                  </div>
-
-                  <AnimatePresence>
-                    {showCommentForm[post.id] && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="mt-4 pt-4 border-t border-gray-100"
-                        >
-                        <CommentSection postId={post.id} />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
-              >
-                <MessageCircle size={48} className="mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-500 text-lg">No posts yet</p>
-                {profile?.id === authState.user?.id && (
-                  <p className="text-gray-400 mt-2">
-                    Share your thoughts with your followers
-                  </p>
+                        </div>
+                    </div>
+                </div>
+                <p className="text-xs text-gray-500">{formatDate(post.created_at)}</p>
+                {post.reposted_from ? (
+                    <div className="mt-2 p-4 border-l-4 border-blue-400 bg-blue-100 text-gray-800 italic">
+                        <blockquote className="pl-4">
+                            <strong>Reposted from @{post.reposted_from.author.username}:</strong> 
+                            <p className="quotes">"{post.reposted_from.content}"</p>
+                            <span className="text-xs text-gray-500">{formatDate(post.reposted_from.created_at)}</span>
+                        </blockquote>
+                    </div>
+                ) : (
+                    <p className="mt-2 text-gray-800">{post.content}</p>
                 )}
-              </motion.div>
-            )}
-          </div>
-        )}
-      </motion.div>
+                {post.image && (
+                    <img src={post.image} alt="Post" className="mt-2 rounded-lg w-full h-auto shadow-md" />
+                )}
+
+                {/* Edit and Delete buttons */}
+                {authState.user?.id === post.author.id && (
+                    <>
+                        <Link 
+                            to={`/edit-post/${post.id}`} 
+                            className="absolute top-2 right-16 text-blue-500 hover:underline"
+                        >
+                            <FontAwesomeIcon icon={faEdit} />
+                        </Link>
+                        <button
+                            onClick={() => deletePost(post.id)}
+                            className="absolute top-2 right-4 text-red-500 hover:underline"
+                        >
+                            <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                    </>
+                )}
+
+                {/* Like and Dislike Buttons */}
+                <div className="flex justify-between mt-2">
+                    <div className="flex space-x-2">
+                        {/* Likes Section */}
+                        <motion.div
+                            className="flex flex-col items-center"
+                            whileHover={{ scale: post.dislikes.includes(authState.user?.id) ? 1 : 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <div className="text-sm text-gray-500 mb-1">
+                                {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
+                            </div>
+                            <button
+                                onClick={() => handleLike(post.id)}
+                                disabled={post.dislikes.includes(authState.user?.id)}
+                                className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.likes.includes(authState.user?.id) ? 'bg-blue-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-blue-600`}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faThumbsUp}
+                                    className={`mr-2 ${post.likes.includes(authState.user?.id) ? 'text-white' : 'text-blue-500'}`}
+                                />
+                                {post.likes.includes(authState.user?.id) ? 'Liked' : 'Like'}
+                            </button>
+                        </motion.div>
+
+                        {/* Dislikes Section */}
+                        <motion.div
+                            className="flex flex-col items-center"
+                            whileHover={{ scale: post.likes.includes(authState.user?.id) ? 1 : 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <div className="text-sm text-gray-500 mb-1">
+                                {post.dislikes.length} {post.dislikes.length === 1 ? 'dislike' : 'dislikes'}
+                            </div>
+                            <button
+                                onClick={() => handleDislike(post.id)}
+                                disabled={post.likes.includes(authState.user?.id)}
+                                className={`flex items-center px-4 py-2 rounded-md text-sm transition duration-300 ${post.dislikes.includes(authState.user?.id) ? 'bg-red-500 text-white' : 'bg-white border border-gray-200 hover:bg-gray-100'} hover:text-red-600`}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faThumbsDown}
+                                    className={`mr-2 ${post.dislikes.includes(authState.user?.id) ? 'text-white' : 'text-red-500'}`}
+                                />
+                                {post.dislikes.includes(authState.user?.id) ? 'Disliked' : 'Dislike'}
+                            </button>
+                        </motion.div>
+                    </div>
+                    <button
+                        onClick={() => handleRepost(post.id)} 
+                        className={`flex items-center space-x-2 p-2 rounded-full 
+                            hover:bg-green-50 group transition-colors duration-200 
+                            ${repostLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                        title="Repost"
+                        disabled={repostLoading} 
+                    >
+                        <Repeat2 
+                            className={`w-5 h-5 transition-transform duration-200 
+                                text-green-600 group-hover:scale-110`}
+                        />
+                        <span className={`text-sm group-hover:text-green-600`}>
+                            Repost
+                        </span>
+                    </button>
+
+                    {/* Comments Section */}
+                    <div className="mt-6">
+                        <button
+                            onClick={() => handleToggleCommentForm(post.id)}
+                            className="flex items-center px-4 py-2 rounded-md text-sm transition duration-300 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-600"
+                        >
+                            <FontAwesomeIcon icon={faComment} className="mr-2 text-blue-500" />
+                            Comment <span className="text-sm text-gray-500 mb-0 ml-2">({commentsCount[post.id] || 0})</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Comment Form */}
+                {showCommentForm[post.id] && (
+                    <CommentSection postId={post.id} />
+                )}
+            </motion.div>
+        ))}
+    </motion.div>
+
+    {/* Success and Error Messages */}
+    {success && (
+        <div className="text-green-500 text-center mt-4">
+            {success}
+        </div>
+    )}
+    {error && (
+        <div className="text-red-500 text-center mt-4">
+            {error}
+        </div>
+    )}
+</motion.div>
+
     </div>
   </motion.div>
 );
