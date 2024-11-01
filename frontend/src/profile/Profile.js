@@ -338,6 +338,7 @@ const cardVariants = {
 };
 
 return (
+
   <motion.div
     variants={containerVariants}
     initial="hidden"
@@ -345,38 +346,47 @@ return (
     exit="exit"
     className="max-w-6xl mx-auto p-4 bg-gray-50"
   >
-    {/* Top Section with Followers/Following Lists */}
-    <AnimatePresence>
-      {(showFollowers || showFollowing) && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="mb-6 bg-white rounded-xl p-6 shadow-sm"
+   {/* Top Section with Followers/Following Lists */}
+<AnimatePresence>
+  {(showFollowers || showFollowing) && (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      className="mb-6 bg-white rounded-xl p-6 shadow-sm"
+    >
+      <div className="flex justify-between items-center mb-4">
+     
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            setShowFollowers(false);
+            setShowFollowing(false);
+          }}
+          className="px-4 py-2 bg-gray-100 rounded-lg text-gray-600 hover:bg-gray-200"
         >
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-800">
-              {showFollowers ? 'Followers' : 'Following'}
-            </h2>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setShowFollowers(false);
-                setShowFollowing(false);
-              }}
-              className="px-4 py-2 bg-gray-100 rounded-lg text-gray-600 hover:bg-gray-200"
-            >
-              Close
-            </motion.button>
+          Close
+        </motion.button>
+      </div>
+      <div className="flex flex-col md:flex-row gap-6 max-h-96 overflow-y-auto">
+        {showFollowers && (
+          <div className="flex-1">
+     
+            <FollowersList profile={profile} />
           </div>
-          <div className="max-h-96 overflow-y-auto">
-            {showFollowers && <FollowersList profile={profile} />}
-            {showFollowing && <FollowingList profile={profile} />}
+        )}
+        {showFollowing && (
+          <div className="flex-1">
+            
+            <FollowingList profile={profile} />
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
 
     {/* Profile Header */}
     <div className="relative bg-gradient-to-b from-blue-500 to-blue-600 rounded-t-xl h-48">
@@ -597,7 +607,13 @@ return (
                     ) : (
                         <p className="mt-4 text-gray-700 text-lg">{post.content}</p>
                     )}
-
+ {post.image && (
+                        <img 
+                            src={post.image} 
+                            alt="Post" 
+                            className="mt-4 rounded-lg w-full h-auto shadow-md hover:shadow-lg transition duration-300" 
+                        />
+                    )}
                 {/* Edit and Delete buttons */}
                 {authState.user?.id === post.author.id && (
                     <>
@@ -699,6 +715,7 @@ return (
 
     </div>
   </motion.div>
+  
 );
 };
              

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
-import { FaUserCircle, FaCheckCircle, FaEnvelope, FaLock, FaIdCard, FaMapMarkerAlt, FaPhoneAlt, FaGlobe, FaBirthdayCake } from 'react-icons/fa';
+import { FaUserCircle, FaCheckCircle, FaEnvelope, FaLock, FaIdCard, FaMapMarkerAlt, FaPhoneAlt, FaGlobe, FaBirthdayCake, FaCamera } from 'react-icons/fa';
 
 const EditProfile = () => {
     const location = useLocation();
@@ -87,194 +87,189 @@ const EditProfile = () => {
     };
 
     return (
+        <div className="min-h-screen bg-gradient-to-b from-indigo-600 to-violet-700 flex items-center justify-center px-7">
         <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="flex items-center justify-center min-h-screen bg-gradient-to-r from-green-200 to-blue-800"
-    >
-        <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full transform transition duration-300 hover:scale-105"
+            className="min-h-screen bg-gradient-to-b from-indigo-600 to-violet-700 flex items-center justify-center px-4 py-8"
         >
-            <motion.h2
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-3xl font-bold text-center mb-6 text-white"
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="max-w-4xl w-full"
             >
-                <span className="text-blue-400">{isEditing ? "Edit Profile" : "Create Your Account"}</span>
-            </motion.h2>
+                <motion.div
+                    className="text-center mb-8"
+                    initial={{ y: -20 }}
+                    animate={{ y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                    <h2 className="text-4xl font-bold text-white mb-4">
+                        {isEditing ? 'Edit Your Profile' : 'Create Your Account'}
+                    </h2>
+                    <p className="text-gray-200">
+                        {isEditing ? 'Update your information below' : 'Fill in your details to get started'}
+                    </p>
+                </motion.div>
 
-            {error && (
-                <div className="text-red-500 text-center mb-4">
-                    {error}
-                </div>
-            )}
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="mb-4 flex items-center">
-                    <FaUserCircle className="text-gray-400 mr-2" />
-                    <input
-                        id="username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Username"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
-
-                <div className="mb-4 flex items-center">
-                    <FaEnvelope className="text-gray-400 mr-2" />
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
-
-                {!isEditing && (
-                    <>
-                        <div className="mb-4 flex items-center">
-                            <FaLock className="text-gray-400 mr-2" />
-                            <input
-                                id="password"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Password"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                        <div className="mb-4 flex items-center">
-                            <FaLock className="text-gray-400 mr-2" />
-                            <input
-                                id="passwordDisabled"
-                                type="text" // Change type to text to show password
-                                value={password} // Keep the password value
-                                placeholder="Password (disabled)"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-200 cursor-not-allowed" // Add some styles for disabled state
-                                disabled // Disable the input
-                            />
-                        </div>
-                        <div className="mb-4 flex items-center">
-                            <FaLock className="text-gray-400 mr-2" />
-                            <input
-                                id="password2"
-                                type="password"
-                                value={password2}
-                                onChange={(e) => setPassword2(e.target.value)}
-                                placeholder="Confirm Password"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                    </>
+                {error && (
+                    <div className="text-red-500 text-center mb-4">
+                        {error}
+                    </div>
                 )}
+                
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="relative">
+                        <FaUserCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Username"
+                            required
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaIdCard className="text-gray-400 mr-2" />
-                    <input
-                        id="firstName"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        placeholder="First Name"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    <div className="relative">
+                        <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Email"
+                            required
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaIdCard className="text-gray-400 mr-2" />
-                    <input
-                        id="lastName"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        placeholder="Last Name"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    {!isEditing && (
+                        <>
+                            <div className="relative">
+                                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <input
+                                    id="password"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Password"
+                                    className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                                />
+                            </div>
+                            <div className="relative">
+                                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <input
+                                    id="password2"
+                                    type="password"
+                                    value={password2}
+                                    onChange={(e) => setPassword2(e.target.value)}
+                                    placeholder="Confirm Password"
+                                    className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                                />
+                            </div>
+                        </>
+                    )}
 
-                <div className="mb-4 flex items-center">
-                    <select
-                        id="gender"
-                        value={gender}
-                        onChange={(e) => setGender(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    >
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
+                    <div className="relative">
+                        <FaIdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="firstName"
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            placeholder="First Name"
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaGlobe className="text-gray-400 mr-2" />
-                    <textarea
-                        id="bio"
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        placeholder="Bio"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    <div className="relative">
+                        <FaIdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="lastName"
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            placeholder="Last Name"
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaMapMarkerAlt className="text-gray-400 mr-2" />
-                    <input
-                        id="location"
-                        type="text"
-                        value={locationInput}
-                        onChange={(e) => setLocationInput(e.target.value)}
-                        placeholder="Location"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    <div className="relative">
+                        <select
+                            id="gender"
+                            value={gender}
+                            onChange={(e) => setGender(e.target.value)}
+                            className="w-full pl-4 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        >
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaPhoneAlt className="text-gray-400 mr-2" />
-                    <input
-                        id="phone"
-                        type="text"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="Phone Number"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    <div className="relative">
+                        <FaGlobe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <textarea
+                            id="bio"
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            placeholder="Bio"
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaGlobe className="text-gray-400 mr-2" />
-                    <input
-                        id="website"
-                        type="url"
-                        value={website}
-                        onChange={(e) => setWebsite(e.target.value)}
-                        placeholder="Website"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    <div className="relative">
+                        <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="location"
+                            type="text"
+                            value={locationInput}
+                            onChange={(e) => setLocationInput(e.target.value)}
+                            placeholder="Location"
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-                <div className="mb-4 flex items-center">
-                    <FaBirthdayCake className="text-gray-400 mr-2" />
-                    <input
-                        id="dateOfBirth"
-                        type="date"
-                        value={dateOfBirth}
-                        onChange={(e) => setDateOfBirth(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                    <div className="relative">
+                        <FaPhoneAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="phone"
+                            type="text"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            placeholder="Phone Number"
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
 
-               <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <FaGlobe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="website"
+                            type="url"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            placeholder="Website"
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <div className="relative">
+                        <FaBirthdayCake className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <input
+                            id="dob"
+                            type="date"
+                            value={dateOfBirth}
+                            onChange={(e) => setDateOfBirth(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border border-gray-300 border-opacity-20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                    </div>
+                    <div className="relative">
                         <label htmlFor="profilePicture" className="relative cursor-pointer">
                             <input
                                 id="profilePicture"
@@ -282,28 +277,28 @@ const EditProfile = () => {
                                 onChange={handleFileChange}
                                 className="hidden"
                             />
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition duration-200">
                                 <FaUserCircle className="text-white" />
                                 Change Photo
                             </div>
                         </label>
                         {isUploaded && (
-                            <div className="flex items-center gap-2 text-green-600">
+                            <div className="flex items-center gap-2 text-green-400">
                                 <FaCheckCircle className="text-lg" />
-                                <span className="text-sm font-medium">Profile Picture Updated!</span>
+                                <strong><span className="text-sm font-bold">Profile Picture Updated!</span>  </strong>
                             </div>
                         )}
                     </div>
-
                     <button
                         type="submit"
-                        className="col-span-2 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        className="col-span-1 sm:col-span-2 w-full py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition duration-200"
                     >
                         {isEditing ? 'Update Profile' : 'Create Account'}
                     </button>
-            </form>
+                </form>
+            </motion.div>
         </motion.div>
-    </motion.div>
+    </div>
     );
 };
 

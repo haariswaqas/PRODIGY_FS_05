@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card/Card';
+import { UserCircle } from 'lucide-react';
 
 const FollowersList = ({ profile }) => {
   const [followers, setFollowers] = useState([]);
@@ -32,10 +34,14 @@ const FollowersList = ({ profile }) => {
 
   useEffect(() => {
     fetchFollowers();
-  }, [profile.username], fetchFollowers);
+  }, [profile.username]);
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>;
+    return (
+      <div className="w-full max-w-md mx-auto p-4 rounded-lg bg-red-50 text-red-500 text-center">
+        <p className="font-medium">{error}</p>
+      </div>
+    );
   }
 
   return (
@@ -43,36 +49,57 @@ const FollowersList = ({ profile }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-md"
+      className="w-full max-w-md mx-auto"
     >
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 text-left">Followers</h2>
-      <ul className="space-y-4 text-left">
-        {followers.length > 0 ? (
-          followers.map((follower, index) => (
-            <motion.li
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.3 }}
-              className="flex items-center p-2 border-b border-gray-200"
-            >
-              <img 
-                src={follower.profile_picture || 'path/to/default/image.jpg'}
-                alt={`${follower.username}'s profile`}
-                className="w-10 h-10 rounded-full mr-3"
-              />
-              <Link 
-                to={`/profile/${follower.id}`} // Assuming `follower.id` is the unique identifier
-                className="text-gray-700 hover:text-blue-600"
-              >
-                {follower.username}
-              </Link>
-            </motion.li>
-          ))
-        ) : (
-          <li className="text-gray-600">No followers found.</li>
-        )}
-      </ul>
+      <Card className="bg-purple-50">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-2xl font-bold text-purple-800">
+            Followers
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-3">
+            {followers.length > 0 ? (
+              followers.map((follower, index) => (
+                <motion.li
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                  className="group"
+                >
+                  <Link 
+                    to={`/profile/${follower.id}`}
+                    className="flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-purple-100"
+                  >
+                    {follower.profile_picture ? (
+                      <img 
+                        src={follower.profile_picture}
+                        alt={`${follower.username}'s profile`}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-purple-200"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <UserCircle className="w-8 h-8 text-purple-500" />
+                      </div>
+                    )}
+                    <div className="ml-4">
+                      <p className="font-medium text-purple-900 group-hover:text-purple-700">
+                        {follower.username}
+                      </p>
+                    </div>
+                  </Link>
+                </motion.li>
+              ))
+            ) : (
+              <li className="text-center py-8">
+                <p className="text-purple-600">No followers yet</p>
+                <p className="text-sm text-purple-400 mt-1">When people follow you, they'll appear here</p>
+              </li>
+            )}
+          </ul>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 };
