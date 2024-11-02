@@ -239,6 +239,7 @@ const PostsList = () => {
                             {post.author.profile_picture ? (
                                 <img 
                                     src={post.author.profile_picture} 
+                                    
                                     alt="Profile" 
                                     className="h-12 w-12 rounded-full mr-4 border-2 border-indigo-100 shadow-sm" 
                                 />
